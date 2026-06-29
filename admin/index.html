@@ -305,6 +305,11 @@ h1,h2,h3,h4{color:var(--ink);letter-spacing:-.02em;line-height:1.2}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         Contact Details
       </button>
+      <button class="sb-link" data-view="photos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Success Photos
+        <span class="badge-n" id="sbPhotoCount"></span>
+      </button>
       <div class="sb-sep"></div>
       <button class="sb-link" onclick="window.open('../','_blank')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -436,6 +441,23 @@ h1,h2,h3,h4{color:var(--ink);letter-spacing:-.02em;line-height:1.2}
           </div>
         </div>
         <div class="card">
+          <div class="card-head"><h3>Hero Photo</h3><span class="sub">Displayed in the homepage hero panel</span></div>
+          <div class="card-pad">
+            <div id="s-heroPhotoPreview" style="width:100%;height:200px;border-radius:10px;border:2px dashed var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;position:relative">
+              <span style="color:var(--muted);font-size:13px" id="s-heroPhotoLabel">No photo uploaded</span>
+              <img id="s-heroPhotoImg" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none">
+            </div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <input type="file" id="s-heroPhotoFile" accept="image/*" style="display:none">
+              <button class="btn btn--ghost" id="s-heroPhotoBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                Upload Photo
+              </button>
+              <span id="s-heroPhotoStatus" style="font-size:13px;color:var(--muted)"></span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
           <div class="card-head"><h3>Section Visibility</h3></div>
           <div class="card-pad" style="padding-top:6px;padding-bottom:6px" id="s-sectionsEl"></div>
         </div>
@@ -554,8 +576,54 @@ h1,h2,h3,h4{color:var(--ink);letter-spacing:-.02em;line-height:1.2}
       </div>
     </div>
 
+    <!-- SUCCESS PHOTOS -->
+    <div class="view hidden" id="view-photos">
+      <div class="page-head">
+        <div><div class="pt">Success Photos</div><div class="ps">Student photos shown in the Success Stories carousel.</div></div>
+        <div class="actions">
+          <button class="btn btn--primary" id="addPhotoBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Photo
+          </button>
+        </div>
+      </div>
+      <div id="photosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px"></div>
+      <div id="photosEmpty" class="empty-state" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <b>No photos yet</b>Upload student success photos to display in the carousel.
+      </div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /app -->
+
+<!-- Add Photo Modal -->
+<div class="modal-back" id="photoModal" style="display:none">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Add Success Photo</h3>
+      <button class="x" id="photoModalClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div id="pm-preview" style="width:100%;height:200px;border-radius:10px;border:2px dashed var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden;position:relative">
+        <span style="color:var(--muted);font-size:13px">No image selected</span>
+        <img id="pm-previewImg" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none">
+      </div>
+      <div style="margin-bottom:12px">
+        <input type="file" id="pm-file" accept="image/*" style="display:none">
+        <button class="btn btn--ghost" id="pm-fileBtn">Choose Image</button>
+        <span id="pm-fileName" style="font-size:13px;color:var(--muted);margin-left:10px">No file chosen</span>
+      </div>
+      <div class="field"><label>Student Name</label><input id="pm-name" type="text" placeholder="e.g. Aisha M., Parramatta"></div>
+      <div class="field"><label>Quote (optional)</label><textarea id="pm-quote" rows="3" placeholder="e.g. Passed first go! Amazing instructor."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn--ghost" id="pm-cancel">Cancel</button>
+      <button class="btn btn--primary" id="pm-upload">Upload &amp; Save</button>
+    </div>
+    <div id="pm-status" style="padding:0 22px 16px;font-size:13px;color:var(--muted);display:none"></div>
+  </div>
+</div>
 
 <!-- Toast container -->
 <div class="toast-wrap" id="toastWrap"></div>
@@ -607,7 +675,7 @@ document.getElementById('confirmOk').onclick=function(){ if(confirmCb){ confirmC
 
 // ── Navigation ────────────────────────────────────────────────
 var currentView='dashboard';
-var titles={dashboard:'Dashboard',enquiries:'Enquiries',settings:'Site Settings',packages:'Lesson Packages',faq:'FAQ Manager',areas:'Service Areas',contact:'Contact Details'};
+var titles={dashboard:'Dashboard',enquiries:'Enquiries',settings:'Site Settings',packages:'Lesson Packages',faq:'FAQ Manager',areas:'Service Areas',contact:'Contact Details',photos:'Success Photos'};
 function goTo(id){
   document.querySelectorAll('.view').forEach(function(v){ v.classList.add('hidden'); });
   var el=document.getElementById('view-'+id);
@@ -694,6 +762,14 @@ function saveStore(data){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(dat
 var store=loadStore();
 function persist(key,val){ store[key]=val; saveStore(store); }
 
+// ── Supabase settings upsert ──────────────────────────────────
+async function sbSave(key, val){
+  if(!sbClient) return;
+  try{
+    await sbClient.from('settings').upsert({key:key,value:JSON.stringify(val)},{onConflict:'key'});
+  }catch(e){ console.warn('sbSave error:',e); }
+}
+
 // ── Auth (simple Supabase email/password) ─────────────────────
 var sbClient=null;
 function initLogin(){
@@ -706,7 +782,10 @@ function initLogin(){
     btn.disabled=true; btn.textContent='Signing in…';
     sbClient.auth.signInWithPassword({email,password:pass}).then(function(r){
       if(r.error){ err.style.display='block'; err.textContent=r.error.message||'Incorrect email or password.'; btn.disabled=false; btn.textContent='Sign In'; }
-      else{ showApp(); }
+      else{
+        if(r.data&&r.data.session&&r.data.session.access_token){ localStorage.setItem('sb_access_token',r.data.session.access_token); }
+        showApp();
+      }
     }).catch(function(){ err.style.display='block'; err.textContent='Login failed. Check your connection.'; btn.disabled=false; btn.textContent='Sign In'; });
   }
   btn.addEventListener('click', doLogin);
@@ -822,6 +901,12 @@ function initSettings(){
     persist('hero',settingsDraft.hero);
     persist('stats',settingsDraft.stats);
     persist('sections',settingsDraft.sections);
+    sbSave('biz_name',settingsDraft.business.name);
+    sbSave('biz_tagline',settingsDraft.business.tagline);
+    sbSave('hero_headline',settingsDraft.hero.headline);
+    sbSave('hero_subtext',settingsDraft.hero.subtext);
+    sbSave('stats',settingsDraft.stats);
+    sbSave('sections',settingsDraft.sections);
     orig=clone(settingsDraft);
     renderUnsaved();
     toast('Settings saved');
@@ -877,7 +962,7 @@ function initPackages(){
   }
   renderPkgs();
 
-  function doSave(){ persist('packages',pkgsDraft); orig=clone(pkgsDraft); renderUnsaved(); toast('Packages saved'); }
+  function doSave(){ persist('packages',pkgsDraft); sbSave('packages',pkgsDraft); orig=clone(pkgsDraft); renderUnsaved(); toast('Packages saved'); }
   document.getElementById('savePkgs').onclick=doSave;
   document.getElementById('savePkgs2').onclick=doSave;
   document.getElementById('addPkgBtn').onclick=function(){ pkgsDraft.push({id:uid(),name:'New Package',price:'$0',duration:'/ 1 hour',popular:false,button:'Book Now',feats:['Feature one']}); renderPkgs(); renderUnsaved(); };
@@ -905,7 +990,7 @@ function initFaq(){
   }
   renderFaqs();
 
-  function doSave(){ persist('faqs',faqDraft); orig=clone(faqDraft); renderFaqs(); renderUnsaved(); toast('FAQs saved'); }
+  function doSave(){ persist('faqs',faqDraft); sbSave('faqs',faqDraft); orig=clone(faqDraft); renderFaqs(); renderUnsaved(); toast('FAQs saved'); }
   document.getElementById('saveFaqs').onclick=doSave;
   document.getElementById('saveFaqs2').onclick=doSave;
   document.getElementById('addFaqBtn').onclick=function(){ faqDraft.push({id:uid(),q:'New question',a:''}); renderFaqs(); renderUnsaved(); };
@@ -939,7 +1024,7 @@ function initAreas(){
   };
   document.getElementById('areaInput').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('addAreaBtn').click(); });
 
-  function doSave(){ persist('areas',areasDraft); orig=clone(areasDraft); renderUnsaved(); toast('Service areas saved'); }
+  function doSave(){ persist('areas',areasDraft); sbSave('areas',areasDraft); orig=clone(areasDraft); renderUnsaved(); toast('Service areas saved'); }
   document.getElementById('saveAreas').onclick=doSave;
   document.getElementById('saveAreas2').onclick=doSave;
 }
@@ -977,18 +1062,165 @@ function initContact(){
     cb.addEventListener('change',function(){ contactDraft.hours[parseInt(cb.getAttribute('data-hour-closed'))].closed=cb.checked; initContact(); renderUnsaved(); });
   });
 
-  function doSave(){ persist('contact',contactDraft); orig=clone(contactDraft); renderUnsaved(); toast('Contact details saved'); }
+  function doSave(){ persist('contact',contactDraft); sbSave('phone',contactDraft.phone); sbSave('email',contactDraft.email); sbSave('address',contactDraft.address); sbSave('whatsapp',contactDraft.wa); sbSave('hours',contactDraft.hours); orig=clone(contactDraft); renderUnsaved(); toast('Contact details saved'); }
   document.getElementById('saveContact').onclick=doSave;
   document.getElementById('saveContact2').onclick=doSave;
+}
+
+// ── Hero Photo upload (inside Settings view) ──────────────────
+function initHeroPhotoUpload(){
+  var fileInput=document.getElementById('s-heroPhotoFile');
+  var btn=document.getElementById('s-heroPhotoBtn');
+  var status=document.getElementById('s-heroPhotoStatus');
+  var previewImg=document.getElementById('s-heroPhotoImg');
+  var previewLabel=document.getElementById('s-heroPhotoLabel');
+
+  // load existing hero photo
+  if(sbClient){
+    sbClient.from('settings').select('value').eq('key','hero_photo_url').maybeSingle().then(function(r){
+      if(r.data&&r.data.value){
+        var url=JSON.parse(r.data.value);
+        if(url){ previewImg.src=url; previewImg.style.display='block'; previewLabel.style.display='none'; }
+      }
+    });
+  }
+
+  btn.addEventListener('click',function(){ fileInput.click(); });
+  fileInput.addEventListener('change',function(){
+    var file=fileInput.files[0]; if(!file) return;
+    var reader=new FileReader();
+    reader.onload=function(e){ previewImg.src=e.target.result; previewImg.style.display='block'; previewLabel.style.display='none'; };
+    reader.readAsDataURL(file);
+    uploadHeroPhoto(file);
+  });
+
+  async function uploadHeroPhoto(file){
+    var token=localStorage.getItem('sb_access_token');
+    if(!token){ status.textContent='Not authenticated'; return; }
+    status.textContent='Uploading…';
+    var ext=file.name.split('.').pop();
+    var filename='hero_'+Date.now()+'.'+ext;
+    try{
+      var uploadRes=await fetch(window.SB_URL+'/storage/v1/object/photos/'+filename,{
+        method:'PUT',
+        headers:{'Authorization':'Bearer '+token,'Content-Type':file.type,'x-upsert':'true'},
+        body:file
+      });
+      if(!uploadRes.ok){ var t=await uploadRes.text(); status.textContent='Upload failed: '+t; return; }
+      var publicUrl=window.SB_URL+'/storage/v1/object/public/photos/'+filename;
+      await sbSave('hero_photo_url',publicUrl);
+      status.textContent='Saved ✓';
+      setTimeout(function(){ status.textContent=''; },3000);
+    }catch(e){ status.textContent='Error: '+e.message; }
+  }
+}
+
+// ── Success Photos view ───────────────────────────────────────
+function initPhotos(){
+  var grid=document.getElementById('photosGrid');
+  var empty=document.getElementById('photosEmpty');
+  var photoModal=document.getElementById('photoModal');
+
+  async function loadPhotos(){
+    if(!sbClient) return;
+    var {data,error}=await sbClient.from('photos').select('*').order('created_at',{ascending:false});
+    if(error){ console.warn('Photos load error:',error); return; }
+    var photos=data||[];
+    document.getElementById('sbPhotoCount').textContent=photos.length||'';
+    if(!photos.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    grid.innerHTML=photos.map(function(p){
+      return '<div class="card" style="padding:0;overflow:hidden;position:relative">'
+        +'<div style="height:160px;background:var(--bg-grey);overflow:hidden">'
+        +(p.url?'<img src="'+esc(p.url)+'" alt="" style="width:100%;height:100%;object-fit:cover">':'<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">No image</div>')
+        +'</div>'
+        +'<div style="padding:12px">'
+        +(p.student_name?'<div style="font-weight:600;font-size:14px;margin-bottom:4px">'+esc(p.student_name)+'</div>':'')
+        +(p.quote?'<div style="font-size:12px;color:var(--muted);line-height:1.5">'+esc(p.quote)+'</div>':'')
+        +'<button class="btn btn--danger btn--sm" data-del-photo="'+esc(p.id)+'" data-del-filename="'+esc(p.filename||'')+'" style="margin-top:10px;width:100%">Delete</button>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+    grid.querySelectorAll('[data-del-photo]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var pid=btn.getAttribute('data-del-photo');
+        var fname=btn.getAttribute('data-del-filename');
+        confirm('Delete photo?','This photo will be permanently removed.',async function(){
+          if(!sbClient) return;
+          await sbClient.from('photos').delete().eq('id',pid);
+          if(fname){
+            var token=localStorage.getItem('sb_access_token');
+            if(token) await fetch(window.SB_URL+'/storage/v1/object/photos/'+fname,{method:'DELETE',headers:{'Authorization':'Bearer '+token}});
+          }
+          loadPhotos();
+          toast('Photo deleted');
+        });
+      });
+    });
+  }
+
+  if(document.getElementById('view-photos').classList.contains('hidden')===false){ loadPhotos(); }
+  document.querySelector('.sb-link[data-view="photos"]').addEventListener('click',function(){ setTimeout(loadPhotos,50); });
+
+  // Add Photo modal
+  var pmFile=document.getElementById('pm-file');
+  var pmFileBtn=document.getElementById('pm-fileBtn');
+  var pmFileName=document.getElementById('pm-fileName');
+  var pmPreviewImg=document.getElementById('pm-previewImg');
+  var pmStatus=document.getElementById('pm-status');
+  var pmUploadBtn=document.getElementById('pm-upload');
+  var selectedFile=null;
+
+  document.getElementById('addPhotoBtn').addEventListener('click',function(){
+    pmFile.value=''; pmFileName.textContent='No file chosen'; pmPreviewImg.src=''; pmPreviewImg.style.display='none';
+    document.getElementById('pm-name').value=''; document.getElementById('pm-quote').value='';
+    pmStatus.style.display='none'; pmStatus.textContent='';
+    photoModal.style.display='grid';
+  });
+  document.getElementById('photoModalClose').addEventListener('click',function(){ photoModal.style.display='none'; });
+  document.getElementById('pm-cancel').addEventListener('click',function(){ photoModal.style.display='none'; });
+  pmFileBtn.addEventListener('click',function(){ pmFile.click(); });
+  pmFile.addEventListener('change',function(){
+    var file=pmFile.files[0]; if(!file) return;
+    selectedFile=file; pmFileName.textContent=file.name;
+    var reader=new FileReader();
+    reader.onload=function(e){ pmPreviewImg.src=e.target.result; pmPreviewImg.style.display='block'; };
+    reader.readAsDataURL(file);
+  });
+
+  pmUploadBtn.addEventListener('click',async function(){
+    var token=localStorage.getItem('sb_access_token');
+    if(!token){ pmStatus.style.display='block'; pmStatus.textContent='Not authenticated. Please log out and back in.'; return; }
+    if(!selectedFile){ pmStatus.style.display='block'; pmStatus.textContent='Please choose an image file.'; return; }
+    pmUploadBtn.disabled=true; pmStatus.style.display='block'; pmStatus.textContent='Uploading…';
+    var ext=selectedFile.name.split('.').pop();
+    var filename='photo_'+Date.now()+'.'+ext;
+    try{
+      var uploadRes=await fetch(window.SB_URL+'/storage/v1/object/photos/'+filename,{
+        method:'PUT',
+        headers:{'Authorization':'Bearer '+token,'Content-Type':selectedFile.type,'x-upsert':'true'},
+        body:selectedFile
+      });
+      if(!uploadRes.ok){ var t=await uploadRes.text(); pmStatus.textContent='Upload failed: '+t; pmUploadBtn.disabled=false; return; }
+      var publicUrl=window.SB_URL+'/storage/v1/object/public/photos/'+filename;
+      var record={url:publicUrl,filename:filename,student_name:document.getElementById('pm-name').value.trim()||null,quote:document.getElementById('pm-quote').value.trim()||null};
+      var {error}=await sbClient.from('photos').insert([record]);
+      if(error){ pmStatus.textContent='DB error: '+error.message; pmUploadBtn.disabled=false; return; }
+      pmStatus.textContent='Photo saved ✓';
+      setTimeout(function(){ photoModal.style.display='none'; pmUploadBtn.disabled=false; loadPhotos(); toast('Photo added'); },800);
+    }catch(e){ pmStatus.textContent='Error: '+e.message; pmUploadBtn.disabled=false; }
+  });
 }
 
 // ── initViews — called once after login ───────────────────────
 function initViews(){
   initSettings();
+  initHeroPhotoUpload();
   initPackages();
   initFaq();
   initAreas();
   initContact();
+  initPhotos();
   // event delegation for quick action goto buttons (re-bind after render)
   document.querySelectorAll('[data-goto]').forEach(function(el){
     el.addEventListener('click', function(){ goTo(el.getAttribute('data-goto')); });
@@ -1010,7 +1242,7 @@ async function initApp(){
     sbClient=window.supabase.createClient(window.SB_URL, window.SB_ANON);
     // check existing session
     var {data:{session}}=await sbClient.auth.getSession();
-    if(session){ showApp(); return; }
+    if(session){ localStorage.setItem('sb_access_token',session.access_token); showApp(); return; }
   }
   initLogin();
 }

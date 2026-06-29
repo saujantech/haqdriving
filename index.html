@@ -406,9 +406,9 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
       <a href="#contact">Contact</a>
     </nav>
     <div class="nav-right">
-      <a href="tel:+61450000000" class="nav-phone">
+      <a href="tel:+61450000000" class="nav-phone" id="navPhone">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        0450 000 000
+        <span id="navPhoneText">0450 000 000</span>
       </a>
       <a href="#contact" class="btn btn--primary">Book a Lesson</a>
       <button class="hamburger" id="openDrawer" aria-label="Open menu">
@@ -440,7 +440,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
     <a href="#contact">Contact</a>
   </nav>
   <div class="drawer-cta">
-    <a href="tel:+61450000000" class="btn btn--ghost btn--block">Call 0450 000 000</a>
+    <a href="tel:+61450000000" class="btn btn--ghost btn--block" id="drawerPhone">Call <span id="drawerPhoneText">0450 000 000</span></a>
     <a href="#contact" class="btn btn--primary btn--block">Book a Lesson</a>
   </div>
 </aside>
@@ -455,8 +455,8 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         Serving Sydney &amp; Surrounding Suburbs
       </span>
-      <h1>Learn to Drive with <span class="accent">Confidence</span></h1>
-      <p class="hero-sub">Professional driving lessons across Sydney. Patient, qualified instruction in automatic vehicles — available 7 days a week to fit your schedule.</p>
+      <h1 id="heroH1">Learn to Drive with <span class="accent">Confidence</span></h1>
+      <p class="hero-sub" id="heroSub">Professional driving lessons across Sydney. Patient, qualified instruction in automatic vehicles — available 7 days a week to fit your schedule.</p>
       <div class="hero-ctas">
         <a href="#contact" class="btn btn--primary btn--lg">Book a Lesson</a>
         <a href="tel:+61450000000" class="btn btn--ghost btn--lg">
@@ -471,8 +471,8 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
       </div>
     </div>
     <div class="hero-media">
-      <div class="hero-photo">
-        <span class="ph-label">instructor + student in car</span>
+      <div class="hero-photo" id="heroPhoto">
+        <span class="ph-label" id="heroPhotoLabel">instructor + student in car</span>
       </div>
       <div class="social-proof">
         <div class="avatar-stack">
@@ -575,12 +575,12 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 </section>
 
 <!-- STATS -->
-<section class="stats">
-  <div class="wrap stats-grid">
-    <div class="stat"><div class="num">400+</div><div class="lbl">Students Trained</div></div>
-    <div class="stat"><div class="num">95%</div><div class="lbl">Test Pass Rate</div></div>
-    <div class="stat"><div class="num"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>5</div><div class="lbl">Star Reviews</div></div>
-    <div class="stat"><div class="num">7 Days</div><div class="lbl">Flexible Lesson Times</div></div>
+<section class="stats" id="statsSection">
+  <div class="wrap stats-grid" id="statsGrid">
+    <div class="stat"><div class="num" id="stat-0">400+</div><div class="lbl" id="stat-lbl-0">Students Trained</div></div>
+    <div class="stat"><div class="num" id="stat-1">95%</div><div class="lbl" id="stat-lbl-1">Test Pass Rate</div></div>
+    <div class="stat"><div class="num" id="stat-2"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>5</div><div class="lbl" id="stat-lbl-2">Star Reviews</div></div>
+    <div class="stat"><div class="num" id="stat-3">7 Days</div><div class="lbl" id="stat-lbl-3">Flexible Lesson Times</div></div>
   </div>
 </section>
 
@@ -794,7 +794,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
       <h2>Service Areas</h2>
       <p>We cover Sydney and surrounding suburbs. Pick-up and drop-off included.</p>
     </div>
-    <div class="area-grid">
+    <div class="area-grid" id="areaGrid">
       <span class="area-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Parramatta</span>
       <span class="area-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Blacktown</span>
       <span class="area-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Auburn</span>
@@ -818,7 +818,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
     <div class="sec-head center">
       <h2>Frequently Asked Questions</h2>
     </div>
-    <div class="faq-list">
+    <div class="faq-list" id="faqList">
       <div class="faq-item">
         <button class="faq-q">How long is each lesson?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
         <div class="faq-a"><div class="faq-a-inner">Standard lessons run for 1 hour. We also offer 1.5 and 2 hour sessions, which many learners prefer for faster progress. Test-day packages include a warm-up lesson before your assessment.</div></div>
@@ -856,19 +856,19 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
       <div class="contact-list">
         <div class="contact-row">
           <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-          <div><div class="cl">Phone</div><a href="tel:+61450000000" class="cv">0450 000 000</a></div>
+          <div><div class="cl">Phone</div><a href="tel:+61450000000" class="cv" id="contactPhone">0450 000 000</a></div>
         </div>
         <div class="contact-row">
           <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>
-          <div><div class="cl">Email</div><a href="mailto:info@haqdriving.com.au" class="cv">info@haqdriving.com.au</a></div>
+          <div><div class="cl">Email</div><a href="mailto:info@haqdriving.com.au" class="cv" id="contactEmail">info@haqdriving.com.au</a></div>
         </div>
         <div class="contact-row">
           <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
-          <div><div class="cl">Location</div><div class="cv">Sydney NSW, Australia</div></div>
+          <div><div class="cl">Location</div><div class="cv" id="contactAddress">Sydney NSW, Australia</div></div>
         </div>
         <div class="contact-row">
           <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></span>
-          <div><div class="cl">Hours</div><div class="cv">Mon–Sun · 6:00am – 8:00pm</div></div>
+          <div><div class="cl">Hours</div><div class="cv" id="contactHours">Mon–Sun · 6:00am – 8:00pm</div></div>
         </div>
       </div>
     </div>
@@ -911,7 +911,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
           <span class="btn-text">Send Enquiry</span>
           <span class="spinner"></span>
         </button>
-        <p class="form-foot">Or call us on <a href="tel:+61450000000">0450 000 000</a></p>
+        <p class="form-foot">Or call us on <a href="tel:+61450000000" id="formPhone">0450 000 000</a></p>
         <p class="form-error" id="formError" style="display:none;color:#DC2626;font-size:13px;text-align:center;margin-top:10px">Something went wrong. Please try again or call us directly.</p>
       </form>
       <div class="form-success" id="formSuccess">
@@ -936,8 +936,8 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
         </a>
         <p class="footer-blurb">Friendly, professional driving lessons across Sydney. Helping learners pass with confidence.</p>
         <div class="social-row">
-          <a href="#" class="social-btn" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
-          <a href="#" class="social-btn" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+          <a href="#" class="social-btn" aria-label="Facebook" id="socialFb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="#" class="social-btn" aria-label="Instagram" id="socialIg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
         </div>
       </div>
       <div class="footer-col">
@@ -961,9 +961,9 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
       <div class="footer-col">
         <h4>Contact</h4>
         <ul>
-          <li><a href="tel:+61450000000">0450 000 000</a></li>
-          <li><a href="mailto:info@haqdriving.com.au">info@haqdriving.com.au</a></li>
-          <li>Sydney NSW, Australia</li>
+          <li><a href="tel:+61450000000" id="footerPhone">0450 000 000</a></li>
+          <li><a href="mailto:info@haqdriving.com.au" id="footerEmail">info@haqdriving.com.au</a></li>
+          <li id="footerAddress">Sydney NSW, Australia</li>
         </ul>
       </div>
       <div class="footer-col">
@@ -1079,6 +1079,191 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
     var sbClient = null;
     if (window.SB_URL && window.SB_ANON && window.supabase) {
       sbClient = window.supabase.createClient(window.SB_URL, window.SB_ANON);
+    }
+
+    // ── Settings: fetch from Supabase with 30s cache ────────────
+    if (sbClient) {
+      var CACHE_KEY = 'r2d_settings';
+      var CACHE_TIME_KEY = 'r2d_settings_time';
+      var TTL = 30000;
+      var cachedRaw = localStorage.getItem(CACHE_KEY);
+      var cachedTime = parseInt(localStorage.getItem(CACHE_TIME_KEY) || '0');
+      if (cachedRaw && (Date.now() - cachedTime < TTL)) {
+        try {
+          var cachedSettings = JSON.parse(cachedRaw);
+          console.log('Settings loaded from cache:', cachedSettings);
+          applySettings(cachedSettings);
+        } catch (e) { console.warn('Settings cache parse error:', e); }
+      } else {
+        sbClient.from('settings').select('key,value').then(function (r) {
+          if (r.error) { console.warn('Settings fetch error:', r.error); return; }
+          var obj = {};
+          (r.data || []).forEach(function (row) {
+            try { obj[row.key] = JSON.parse(row.value); } catch (e) { obj[row.key] = row.value; }
+          });
+          localStorage.setItem(CACHE_KEY, JSON.stringify(obj));
+          localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+          console.log('Settings loaded from Supabase:', obj);
+          applySettings(obj);
+        });
+      }
+    }
+
+    function applySettings(s) {
+      function set(id, text) {
+        var el = document.getElementById(id);
+        if (el) { console.log('Applying setting:', id, text); el.textContent = text; }
+      }
+      function setHref(id, href) {
+        var el = document.getElementById(id);
+        if (el) el.setAttribute('href', href);
+      }
+
+      // Phone
+      if (s.phone) {
+        var ph = s.phone;
+        var phHref = 'tel:+61' + ph.replace(/\D/g,'').replace(/^0/,'');
+        set('navPhoneText', ph);
+        setHref('navPhone', phHref);
+        set('drawerPhoneText', ph);
+        setHref('drawerPhone', phHref);
+        var contactPhoneEl = document.getElementById('contactPhone');
+        if (contactPhoneEl) { contactPhoneEl.textContent = ph; contactPhoneEl.setAttribute('href', phHref); }
+        var footerPhoneEl = document.getElementById('footerPhone');
+        if (footerPhoneEl) { footerPhoneEl.textContent = ph; footerPhoneEl.setAttribute('href', phHref); }
+        var formPhoneEl = document.getElementById('formPhone');
+        if (formPhoneEl) { formPhoneEl.textContent = ph; formPhoneEl.setAttribute('href', phHref); }
+        console.log('Applying setting: phone', ph);
+      }
+
+      // WhatsApp
+      if (s.whatsapp) {
+        var fab = document.querySelector('.whatsapp-fab');
+        if (fab) fab.setAttribute('href', 'https://wa.me/' + s.whatsapp + '?text=Hi%20Haq%20Driving%2C%20I%27d%20like%20to%20book%20a%20driving%20lesson.');
+        console.log('Applying setting: whatsapp', s.whatsapp);
+      }
+
+      // Email
+      if (s.email) {
+        var emailHref = 'mailto:' + s.email;
+        var cEmail = document.getElementById('contactEmail');
+        if (cEmail) { cEmail.textContent = s.email; cEmail.setAttribute('href', emailHref); }
+        var fEmail = document.getElementById('footerEmail');
+        if (fEmail) { fEmail.textContent = s.email; fEmail.setAttribute('href', emailHref); }
+        console.log('Applying setting: email', s.email);
+      }
+
+      // Address
+      if (s.address) {
+        set('contactAddress', s.address);
+        set('footerAddress', s.address);
+      }
+
+      // Hours
+      if (s.hours && Array.isArray(s.hours)) {
+        var open = s.hours.filter(function(h){ return !h.closed; });
+        if (open.length) {
+          var days = open.map(function(h){ return h.day.slice(0,3); });
+          var txt = days[0] + (days.length > 1 ? '–' + days[days.length-1] : '') + ' · ' + open[0].open + ' – ' + open[0].close;
+          set('contactHours', txt);
+          console.log('Applying setting: hours', txt);
+        }
+      }
+
+      // Hero headline with [word] → blue parser
+      if (s.hero_headline) {
+        var h1 = document.getElementById('heroH1');
+        if (h1) {
+          var parts = s.hero_headline.split(/(\[[^\]]*\])/);
+          h1.innerHTML = parts.map(function(p) {
+            if (p.startsWith('[') && p.endsWith(']')) {
+              return '<span class="accent">' + p.slice(1,-1) + '</span>';
+            }
+            return p;
+          }).join('');
+          console.log('Applying setting: hero_headline', s.hero_headline);
+        }
+      }
+
+      // Hero subtext
+      if (s.hero_subtext) { set('heroSub', s.hero_subtext); }
+
+      // Hero photo
+      if (s.hero_photo_url) {
+        var hPhoto = document.getElementById('heroPhoto');
+        if (hPhoto) {
+          hPhoto.style.backgroundImage = 'url(' + s.hero_photo_url + ')';
+          hPhoto.style.backgroundSize = 'cover';
+          hPhoto.style.backgroundPosition = 'center';
+          var lbl = document.getElementById('heroPhotoLabel');
+          if (lbl) lbl.style.display = 'none';
+          console.log('Applying setting: hero_photo_url', s.hero_photo_url);
+        }
+      }
+
+      // Stats bar
+      if (s.stats && Array.isArray(s.stats)) {
+        s.stats.forEach(function(st, i) {
+          var numEl = document.getElementById('stat-' + i);
+          var lblEl = document.getElementById('stat-lbl-' + i);
+          if (numEl) { numEl.textContent = st.value; console.log('Applying setting: stat-' + i, st.value); }
+          if (lblEl) { lblEl.textContent = st.label; }
+        });
+      }
+
+      // Service areas
+      if (s.areas && Array.isArray(s.areas)) {
+        var areaGrid = document.getElementById('areaGrid');
+        if (areaGrid) {
+          var pinSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+          areaGrid.innerHTML = s.areas.map(function(a) {
+            return '<span class="area-pill">' + pinSvg + a + '</span>';
+          }).join('');
+          console.log('Applying setting: areas', s.areas);
+        }
+      }
+
+      // FAQ items
+      if (s.faqs && Array.isArray(s.faqs)) {
+        var faqList = document.getElementById('faqList');
+        if (faqList) {
+          faqList.innerHTML = s.faqs.map(function(f) {
+            return '<div class="faq-item"><button class="faq-q">' + f.q + '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a"><div class="faq-a-inner">' + f.a + '</div></div></div>';
+          }).join('');
+          // re-bind accordion
+          faqList.querySelectorAll('.faq-item').forEach(function(item) {
+            var q = item.querySelector('.faq-q');
+            var a = item.querySelector('.faq-a');
+            q.addEventListener('click', function() {
+              var isOpen = item.classList.contains('open');
+              faqList.querySelectorAll('.faq-item.open').forEach(function(other) {
+                if (other !== item) { other.classList.remove('open'); other.querySelector('.faq-a').style.maxHeight = null; }
+              });
+              if (isOpen) { item.classList.remove('open'); a.style.maxHeight = null; }
+              else { item.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; }
+            });
+          });
+          console.log('Applying setting: faqs', s.faqs.length + ' items');
+        }
+      }
+
+      // Lesson packages
+      if (s.packages && Array.isArray(s.packages)) {
+        var pkgScroller = document.getElementById('scroller-packages');
+        if (pkgScroller) {
+          var tickSvg = '<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
+          pkgScroller.innerHTML = s.packages.map(function(p) {
+            return '<article class="pkg-card' + (p.popular ? ' popular' : '') + '">'
+              + (p.popular ? '<span class="pkg-flag">Most Popular</span>' : '')
+              + '<h3>' + p.name + '</h3>'
+              + '<div class="pkg-price"><span class="amt">' + p.price + '</span><span class="per">' + p.duration + '</span></div>'
+              + '<ul class="pkg-feats">' + (p.feats||[]).map(function(f){ return '<li>' + tickSvg + f + '</li>'; }).join('') + '</ul>'
+              + '<a href="#contact" class="btn ' + (p.popular ? 'btn--primary' : 'btn--outline') + ' btn--block">' + (p.button||'Book Now') + '</a>'
+              + '</article>';
+          }).join('');
+          console.log('Applying setting: packages', s.packages.length + ' items');
+        }
+      }
     }
 
     var form = document.getElementById('enquiryForm');

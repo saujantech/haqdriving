@@ -813,7 +813,7 @@ async function loadEnquiries(){
     return '<tr><td><b>'+esc(r.full_name||'')+'</b></td><td style="font-size:13px">'+esc(r.email||'')+'</td><td style="font-size:13px">'+esc(r.phone||'')+'</td><td style="font-size:13px">'+esc(r.lesson_type||'')+'</td><td style="font-size:13px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.message||'—')+'</td><td style="font-size:12px;white-space:nowrap">'+esc(fmt(r.created_at))+'</td><td><span class="badge-pill '+(isNew?'badge-new':'badge-read')+'">'+(isNew?'New':'Read')+'</span></td><td><a href="mailto:'+esc(r.email)+'" class="btn btn--ghost btn--sm">Reply</a></td></tr>';
   }).join('');
   // update badge
-  var unread=data.filter(function(r){return !r.read_at;}).length;
+  var unread=(data||[]).filter(function(r){return !r.read_at;}).length;
   document.getElementById('sbEnqCount').textContent=unread||'';
 }
 document.getElementById('refreshEnq').addEventListener('click',function(){ loadEnquiries(); toast('Enquiries refreshed'); });
@@ -837,7 +837,7 @@ async function loadDashboard(){
   if(!data||!data.length){ dashBody.innerHTML='<tr><td colspan="5"><div class="empty-state"><b>No enquiries yet</b></div></td></tr>'; }
   else{
     dashBody.innerHTML=data.map(function(r){ return '<tr><td><b>'+esc(r.full_name||'')+'</b></td><td style="font-size:13px">'+esc(r.lesson_type||'')+'</td><td style="font-size:13px">'+esc(r.phone||'')+'</td><td style="font-size:12px">'+esc(fmt(r.created_at))+'</td><td><span class="badge-pill '+(r.read_at?'badge-read':'badge-new')+'">'+(r.read_at?'Read':'New')+'</span></td></tr>'; }).join('');
-    var total=data.length, unread=data.filter(function(r){return !r.read_at;}).length;
+    var total=(data||[]).length, unread=(data||[]).filter(function(r){return !r.read_at;}).length;
     // refresh counts
     sbClient.from('enquiries').select('id',{count:'exact'}).then(function(r){ if(!r.error){ document.getElementById('stat-enq').textContent=r.count||0; } });
     document.getElementById('stat-new').textContent=unread;
@@ -867,20 +867,11 @@ function initSettings(){
 
   // stats
   var sg=document.getElementById('s-statsGrid');
-  sg.innerHTML=settingsDraft.stats.map(function(s,i){
+  sg.innerHTML=(settingsDraft.stats||[]).map(function(s,i){
     return '<div class="field"><label>'+esc(s.label)+'</label><input data-stat="'+i+'" type="text" value="'+esc(s.value)+'"></div>';
   }).join('');
   sg.querySelectorAll('input').forEach(function(inp){
     inp.addEventListener('input',function(){ settingsDraft.stats[parseInt(inp.getAttribute('data-stat'))].value=inp.value; renderUnsaved(); });
-  });
-
-  // sections
-  var se=document.getElementById('s-sectionsEl');
-  se.innerHTML=settingsDraft.sections.map(function(s,i){
-    return '<div class="toggle-row"><div class="tr-txt"><b>'+esc(s.label)+'</b><span>'+esc(s.desc)+'</span></div><label class="toggle"><input type="checkbox" data-sec="'+i+'"'+(s.on?' checked':'')+'><span class="track"></span><span class="thumb"></span></label></div>';
-  }).join('');
-  se.querySelectorAll('input[type=checkbox]').forEach(function(cb){
-    cb.addEventListener('change',function(){ settingsDraft.sections[parseInt(cb.getAttribute('data-sec'))].on=cb.checked; renderUnsaved(); });
   });
 
   function updateHeadlinePreview(){
@@ -923,7 +914,7 @@ function initPackages(){
 
   function renderPkgs(){
     var grid=document.getElementById('pkgGrid');
-    grid.innerHTML=pkgsDraft.map(function(p,pi){
+    grid.innerHTML=(pkgsDraft||[]).map(function(p,pi){
       return '<div class="card" style="padding:20px;position:relative">'
         +(p.popular?'<div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:10.5px;font-weight:700;padding:4px 12px;border-radius:100px;text-transform:uppercase;white-space:nowrap;z-index:2">Most Popular</div>':'')
         +'<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn btn--danger btn--sm" data-del-pkg="'+pi+'">Delete</button></div>'
@@ -931,7 +922,7 @@ function initPackages(){
         +'<div class="grid-2"><div class="field"><label>Price</label><input data-pkg="'+pi+'" data-field="price" type="text" value="'+esc(p.price)+'"></div>'
         +'<div class="field"><label>Duration</label><input data-pkg="'+pi+'" data-field="duration" type="text" value="'+esc(p.duration)+'"></div></div>'
         +'<div class="field"><label>Features</label><div data-feats="'+pi+'">'
-        +p.feats.map(function(f,fi){ return '<div style="display:flex;gap:8px;margin-bottom:8px"><input data-pkg="'+pi+'" data-feat="'+fi+'" type="text" value="'+esc(f)+'" style="flex:1"><button data-del-feat="'+pi+'-'+fi+'" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);cursor:pointer;flex:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'; }).join('')
+        +(p.feats||[]).map(function(f,fi){ return '<div style="display:flex;gap:8px;margin-bottom:8px"><input data-pkg="'+pi+'" data-feat="'+fi+'" type="text" value="'+esc(f)+'" style="flex:1"><button data-del-feat="'+pi+'-'+fi+'" style="width:28px;height:28px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);cursor:pointer;flex:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'; }).join('')
         +'</div><button class="btn btn--ghost btn--sm" data-add-feat="'+pi+'" style="margin-top:4px">+ Add feature</button></div>'
         +'<div class="field"><label>Button Label</label><input data-pkg="'+pi+'" data-field="button" type="text" value="'+esc(p.button)+'"></div>'
         +'<div class="toggle-row" style="border-bottom:none;padding-bottom:0"><div class="tr-txt"><b>Most Popular</b><span>Blue border highlight</span></div><label class="toggle"><input type="checkbox" data-popular="'+pi+'"'+(p.popular?' checked':'')+'><span class="track"></span><span class="thumb"></span></label></div>'
@@ -945,7 +936,7 @@ function initPackages(){
       inp.addEventListener('input',function(){ pkgsDraft[parseInt(inp.getAttribute('data-pkg'))].feats[parseInt(inp.getAttribute('data-feat'))]=inp.value; renderUnsaved(); });
     });
     grid.querySelectorAll('input[data-popular]').forEach(function(cb){
-      cb.addEventListener('change',function(){ var pi=parseInt(cb.getAttribute('data-popular')); pkgsDraft.forEach(function(p,i){ p.popular=(i===pi); }); renderPkgs(); renderUnsaved(); });
+      cb.addEventListener('change',function(){ var pi=parseInt(cb.getAttribute('data-popular')); (pkgsDraft||[]).forEach(function(p,i){ p.popular=(i===pi); }); renderPkgs(); renderUnsaved(); });
     });
     grid.querySelectorAll('[data-del-pkg]').forEach(function(btn){
       btn.addEventListener('click',function(){ var pi=parseInt(btn.getAttribute('data-del-pkg')); confirm('Delete package?','"'+pkgsDraft[pi].name+'" will be removed.',function(){ pkgsDraft.splice(pi,1); renderPkgs(); renderUnsaved(); }); });
@@ -975,7 +966,7 @@ function initFaq(){
 
   function renderFaqs(){
     var list=document.getElementById('faqList');
-    list.innerHTML=faqDraft.map(function(f,i){
+    list.innerHTML=(faqDraft||[]).map(function(f,i){
       return '<div class="card" style="margin-bottom:12px;padding:18px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><div style="font-weight:600;color:var(--ink);flex:1;font-size:14px">'+esc(f.q||'Untitled question')+'</div><button class="btn btn--danger btn--sm" data-del-faq="'+i+'">Delete</button></div><div class="field"><label>Question</label><input data-faq="'+i+'" data-field="q" type="text" value="'+esc(f.q)+'"></div><div class="field"><label>Answer</label><textarea data-faq="'+i+'" data-field="a" rows="3">'+esc(f.a)+'</textarea></div></div>';
     }).join('');
     list.querySelectorAll('input[data-faq],textarea[data-faq]').forEach(function(inp){
@@ -1004,7 +995,7 @@ function initAreas(){
   function renderPills(){
     var wrap=document.getElementById('areaPills');
     document.getElementById('areaCount').textContent=areasDraft.length+' suburbs';
-    wrap.innerHTML=areasDraft.map(function(a,i){
+    wrap.innerHTML=(areasDraft||[]).map(function(a,i){
       return '<span style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:100px;padding:8px 8px 8px 14px;font-size:13.5px;font-weight:500;color:var(--ink)">'+esc(a)+'<button data-rm="'+i+'" style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:var(--muted);cursor:pointer" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></span>';
     }).join('');
     wrap.querySelectorAll('[data-rm]').forEach(function(btn){
@@ -1045,7 +1036,7 @@ function initContact(){
   bind('c-wa',function(){ return contactDraft.wa||''; },function(v){ contactDraft.wa=v; });
 
   var hoursEl=document.getElementById('hoursEl');
-  hoursEl.innerHTML=contactDraft.hours.map(function(h,i){
+  hoursEl.innerHTML=(contactDraft.hours||[]).map(function(h,i){
     return '<div class="hours-row">'
       +'<span class="day">'+esc(h.day)+'</span>'
       +(h.closed?'<span class="closed-lbl">Closed</span>':'<span class="hours-times"><input type="time" data-hour="'+i+'" data-hfield="open" value="'+esc(h.open)+'"><span class="dash">–</span><input type="time" data-hour="'+i+'" data-hfield="close" value="'+esc(h.close)+'"></span>')

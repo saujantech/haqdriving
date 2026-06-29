@@ -183,10 +183,11 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 .review-via{font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
 
 /* Packages */
-.pkg-grid{padding-top:22px}
+.pkg-grid{padding-top:22px;align-items:stretch}
 .pkg-grid.hscroll{justify-content:safe center;align-items:stretch}
+.pkg-btn{margin-top:auto;flex-shrink:0}
 .pkg-grid.hscroll>.pkg-card{flex:0 0 calc((100% - 44px)/3)}
-.pkg-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px 26px;box-shadow:var(--shadow-sm);transition:transform .2s,box-shadow .2s;position:relative}
+.pkg-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px 26px;box-shadow:var(--shadow-sm);transition:transform .2s,box-shadow .2s;position:relative;display:flex;flex-direction:column;min-height:420px}
 .pkg-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
 .pkg-card.popular{border:2px solid var(--blue);box-shadow:var(--shadow-md)}
 .pkg-flag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:12px;font-weight:700;letter-spacing:.04em;padding:6px 16px;border-radius:100px;text-transform:uppercase;white-space:nowrap}
@@ -194,7 +195,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 .pkg-price{display:flex;align-items:baseline;gap:6px;margin-bottom:20px}
 .pkg-price .amt{font-size:40px;font-weight:800;color:var(--ink);letter-spacing:-0.03em}
 .pkg-price .per{font-size:14px;color:var(--muted)}
-.pkg-feats{list-style:none;margin-bottom:24px;display:flex;flex-direction:column;gap:11px}
+.pkg-feats{list-style:none;margin-bottom:24px;display:flex;flex-direction:column;gap:11px;flex:1}
 .pkg-feats li{display:flex;align-items:center;gap:10px;font-size:14.5px;color:#3B4759}
 .pkg-feats .tick{width:19px;height:19px;border-radius:50%;background:#E4F3EA;color:var(--green);display:grid;place-items:center;flex:none}
 .pkg-feats .tick svg{width:12px;height:12px}
@@ -758,7 +759,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Pick-up &amp; drop-off</li>
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Automatic vehicle</li>
         </ul>
-        <a href="#contact" class="btn btn--outline btn--block">Book Now</a>
+        <a href="#contact" class="btn btn--outline btn--block pkg-btn">Book Now</a>
       </article>
       <article class="pkg-card popular">
         <span class="pkg-flag">Most Popular</span>
@@ -769,7 +770,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Personalised lesson plan</li>
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Save $30 vs single lessons</li>
         </ul>
-        <a href="#contact" class="btn btn--primary btn--block">Book Now</a>
+        <a href="#contact" class="btn btn--primary btn--block pkg-btn">Book Now</a>
       </article>
       <article class="pkg-card">
         <h3>10 Lesson Package</h3>
@@ -1273,7 +1274,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
               + '<h3>' + p.name + '</h3>'
               + '<div class="pkg-price"><span class="amt">' + p.price + '</span><span class="per">' + p.duration + '</span></div>'
               + '<ul class="pkg-feats">' + (p.feats||[]).map(function(f){ return '<li>' + tickSvg + f + '</li>'; }).join('') + '</ul>'
-              + '<a href="#contact" class="btn ' + (p.popular ? 'btn--primary' : 'btn--outline') + ' btn--block">' + (p.button||'Book Now') + '</a>'
+              + '<a href="#contact" class="btn ' + (p.popular ? 'btn--primary' : 'btn--outline') + ' btn--block pkg-btn">' + (p.button||'Book Now') + '</a>'
               + '</article>';
           }).join('');
           console.log('Applying setting: packages', s.packages.length + ' items');

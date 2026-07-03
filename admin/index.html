@@ -1134,6 +1134,33 @@ function initContact(){
   document.getElementById('saveContact2').onclick=doSave;
 }
 
+// ── Image compression utility ────────────────────────────────
+function compressImage(file, maxWidth, maxHeight, quality, callback) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var w = img.width, h = img.height;
+      if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+      if (h > maxHeight) { w = Math.round(w * maxHeight / h); h = maxHeight; }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(function(blob) {
+        var compressed = new File(
+          [blob],
+          file.name.replace(/\.[^.]+$/, '.jpg'),
+          { type: 'image/jpeg' }
+        );
+        console.log('Compressed: ' + Math.round(file.size/1024) + 'KB → ' + Math.round(compressed.size/1024) + 'KB');
+        callback(compressed);
+      }, 'image/jpeg', quality);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 // ── Hero Photo upload (inside Settings view) ──────────────────
 function initHeroPhotoUpload(){
   var fileInput=document.getElementById('s-heroPhotoFile');
@@ -1158,7 +1185,10 @@ function initHeroPhotoUpload(){
     var reader=new FileReader();
     reader.onload=function(e){ previewImg.src=e.target.result; previewImg.style.display='block'; previewLabel.style.display='none'; };
     reader.readAsDataURL(file);
-    uploadHeroPhoto(file);
+    status.textContent='Compressing image…';
+    compressImage(file, 1200, 800, 0.85, function(compressed) {
+      uploadHeroPhoto(compressed);
+    });
   });
 
   async function uploadHeroPhoto(file){
@@ -1178,8 +1208,7 @@ function initHeroPhotoUpload(){
       }
     }
 
-    var ext=file.name.split('.').pop();
-    var filename='hero_'+Date.now()+'.'+ext;
+    var filename='hero_'+Date.now()+'.jpg';
     try{
       var uploadRes=await fetch(window.SB_URL+'/storage/v1/object/photos/'+filename,{
         method:'PUT',
@@ -1201,7 +1230,7 @@ function initHeroPhotoUpload(){
         }).catch(function(e){ console.warn('Error deleting old hero photo:',e); });
       }
 
-      status.textContent='Saved ✓';
+      status.textContent='Saved successfully ✓';
       setTimeout(function(){ status.textContent=''; },3000);
     }catch(e){ status.textContent='Error: '+e.message; }
   }
@@ -1281,18 +1310,24 @@ function initPhotos(){
     reader.readAsDataURL(file);
   });
 
-  pmUploadBtn.addEventListener('click',async function(){
+  pmUploadBtn.addEventListener('click',function(){
     var token=localStorage.getItem('sb_access_token');
     if(!token){ pmStatus.style.display='block'; pmStatus.textContent='Not authenticated. Please log out and back in.'; return; }
     if(!selectedFile){ pmStatus.style.display='block'; pmStatus.textContent='Please choose an image file.'; return; }
-    pmUploadBtn.disabled=true; pmStatus.style.display='block'; pmStatus.textContent='Uploading…';
-    var ext=selectedFile.name.split('.').pop();
-    var filename='photo_'+Date.now()+'.'+ext;
+    pmUploadBtn.disabled=true; pmStatus.style.display='block'; pmStatus.textContent='Compressing image…';
+    compressImage(selectedFile, 800, 800, 0.8, function(compressed) {
+      doPhotoUpload(compressed, token);
+    });
+  });
+
+  async function doPhotoUpload(file, token){
+    pmStatus.textContent='Uploading…';
+    var filename='photo_'+Date.now()+'.jpg';
     try{
       var uploadRes=await fetch(window.SB_URL+'/storage/v1/object/photos/'+filename,{
         method:'PUT',
-        headers:{'Authorization':'Bearer '+token,'Content-Type':selectedFile.type,'x-upsert':'true'},
-        body:selectedFile
+        headers:{'Authorization':'Bearer '+token,'Content-Type':file.type,'x-upsert':'true'},
+        body:file
       });
       if(!uploadRes.ok){ var t=await uploadRes.text(); pmStatus.textContent='Upload failed: '+t; pmUploadBtn.disabled=false; return; }
       var publicUrl=window.SB_URL+'/storage/v1/object/public/photos/'+filename;
@@ -1310,10 +1345,10 @@ function initPhotos(){
         body:JSON.stringify({url:publicUrl,student_name:studentName,suburb:suburb,quote:quote,sort_order:0})
       });
       if(!insertRes.ok){ var it=await insertRes.text(); pmStatus.textContent='DB error: '+it; pmUploadBtn.disabled=false; return; }
-      pmStatus.textContent='Photo saved ✓';
+      pmStatus.textContent='Saved successfully ✓';
       setTimeout(function(){ photoModal.style.display='none'; pmUploadBtn.disabled=false; loadPhotos(); toast('Photo added'); },800);
     }catch(e){ pmStatus.textContent='Error: '+e.message; pmUploadBtn.disabled=false; }
-  });
+  }
 }
 
 // ── Social Media Links view ───────────────────────────────────

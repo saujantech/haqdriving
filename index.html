@@ -235,7 +235,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 @keyframes skeleton-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .hours-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:14px;border-bottom:1px solid #F1F5F9;color:#374151}
 .hours-row:last-child{border-bottom:none}
-.hours-day{font-weight:500;color:#1E293B}
+.hours-day{font-weight:600;color:#1E293B;min-width:100px}
 .hours-time{color:#64748B}
 
 /* Form */
@@ -400,7 +400,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 // ── Apply settings immediately from cache (zero-flash) ────────────
 var HAQ_CACHE_KEY = 'haq_settings';
 var HAQ_CACHE_TIME = 'haq_settings_time';
-var HAQ_CACHE_TTL = 30000;
+var HAQ_CACHE_TTL = 15000;
 
 function markLoaded() {
   var h1 = document.getElementById('heroH1');
@@ -448,26 +448,25 @@ function applySettings(s) {
 
   if (s.address) { set('contactAddress', s.address); set('footerAddress', s.address); }
 
-  var hoursRaw = s['business_hours'] || s['hours'];
+  var hoursRaw = s['business_hours'];
   var hoursEl = document.getElementById('contact-hours');
   if (hoursRaw && hoursEl) {
     try {
-      var hours = typeof hoursRaw === 'string' ? JSON.parse(hoursRaw) : hoursRaw;
-      var dayKeys = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-      var dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-      var hoursHTML = '';
-      if (Array.isArray(hours)) {
-        hoursHTML = hours.map(function(h) {
-          return '<div class="hours-row"><span class="hours-day">' + h.day + '</span><span class="hours-time">' + (h.closed ? 'Closed' : h.open + ' – ' + h.close) + '</span></div>';
-        }).join('');
-      } else {
-        hoursHTML = dayKeys.map(function(day, i) {
-          var d = hours[day]; if (!d) return '';
-          return '<div class="hours-row"><span class="hours-day">' + dayNames[i] + '</span><span class="hours-time">' + (d.closed ? 'Closed' : d.open + ' – ' + d.close) + '</span></div>';
-        }).join('');
-      }
-      if (hoursHTML) hoursEl.innerHTML = hoursHTML;
-    } catch(e) { hoursEl.innerHTML = '<p>Mon–Sun: 6:00am – 8:00pm</p>'; }
+      var h = typeof hoursRaw === 'string' ? JSON.parse(hoursRaw) : hoursRaw;
+      var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+      var names = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      hoursEl.innerHTML = days.map(function(d, i) {
+        var day = h[d];
+        if (!day) return '';
+        var time = day.closed
+          ? '<span style="color:#EF4444">Closed</span>'
+          : '<span>' + day.open + ' – ' + day.close + '</span>';
+        return '<div class="hours-row"><span class="hours-day">' + names[i] + '</span>' + time + '</div>';
+      }).join('');
+      console.log('Hours applied successfully');
+    } catch(e) {
+      console.error('Hours error:', e);
+    }
   }
 
   if (s.hero_headline) {

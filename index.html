@@ -493,9 +493,15 @@ function applySettings(s) {
     var mPh = document.getElementById('modalPhone'); if (mPh) { mPh.textContent = ph; mPh.setAttribute('href', phHref); }
   }
 
-  if (s.whatsapp) {
-    var fab = document.querySelector('.whatsapp-fab');
-    if (fab) fab.setAttribute('href', 'https://wa.me/' + s.whatsapp + '?text=Hi%20Haq%20Driving%2C%20I%27d%20like%20to%20book%20a%20driving%20lesson.');
+  var waBtn = document.getElementById('whatsapp-btn');
+  if (waBtn) {
+    var waCountry = s['whatsapp_country'] || '61';
+    var waPhone = (s['whatsapp_number'] || s['whatsapp'] || '').toString().trim();
+    if (waPhone.startsWith('0')) waPhone = waPhone.substring(1);
+    waPhone = waPhone.replace(/[\s\-\(\)]/g, '');
+    var waMessage = s['whatsapp_message'] || "Hi, I'd like to book a driving lesson.";
+    var waUrl = 'https://wa.me/' + waCountry + waPhone + '?text=' + encodeURIComponent(waMessage);
+    waBtn.href = waUrl;
   }
 
   if (s.email) {
@@ -1403,7 +1409,7 @@ function applyHeroStyle(style) {
 </div>
 
 <!-- WhatsApp FAB -->
-<a href="https://wa.me/61450000000?text=Hi%20Haq%20Driving%2C%20I%27d%20like%20to%20book%20a%20driving%20lesson." class="whatsapp-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+<a href="https://wa.me/61450000000?text=Hi%20Haq%20Driving%2C%20I%27d%20like%20to%20book%20a%20driving%20lesson." class="whatsapp-fab" id="whatsapp-btn" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.29-.15-1.72-.85-1.99-.94-.27-.1-.46-.15-.65.15-.19.29-.74.94-.91 1.13-.17.19-.34.22-.62.07-.29-.15-1.22-.45-2.32-1.43-.86-.76-1.44-1.71-1.6-2-.17-.29-.02-.45.13-.59.13-.13.29-.34.43-.51.15-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.08-.15-.65-1.56-.89-2.14-.23-.56-.47-.48-.65-.49h-.55c-.19 0-.5.07-.76.36-.26.29-1 .98-1 2.38s1.02 2.76 1.17 2.95c.15.19 2.02 3.08 4.89 4.32.68.29 1.22.47 1.63.6.69.22 1.31.19 1.81.11.55-.08 1.72-.7 1.96-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34zM12.05 21.8h-.01a9.8 9.8 0 0 1-4.99-1.37l-.36-.21-3.71.97.99-3.62-.23-.37a9.8 9.8 0 0 1-1.5-5.21c0-5.42 4.42-9.83 9.85-9.83 2.63 0 5.1 1.02 6.96 2.88a9.77 9.77 0 0 1 2.88 6.96c0 5.42-4.42 9.83-9.84 9.83zM20.52 3.45A11.74 11.74 0 0 0 12.05 0C5.5 0 .18 5.32.17 11.85c0 2.09.55 4.13 1.59 5.93L.07 24l6.37-1.67a11.8 11.8 0 0 0 5.62 1.43h.01c6.54 0 11.86-5.32 11.87-11.86a11.8 11.8 0 0 0-3.42-8.38z"/></svg>
 </a>
 

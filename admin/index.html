@@ -672,7 +672,44 @@ h1,h2,h3,h4{color:var(--ink);letter-spacing:-.02em;line-height:1.2}
               <div class="field"><label>Email Address</label><input id="c-email" type="email"></div>
             </div>
             <div class="field"><label>Address</label><textarea id="c-address" rows="2"></textarea></div>
-            <div class="field"><label>WhatsApp Number <span style="font-size:12px;color:var(--muted);font-weight:400">(digits only, e.g. 61450000000)</span></label><input id="c-wa" type="text"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>WhatsApp Button</h3><span class="sub">Configure the WhatsApp chat button shown on your website</span></div>
+          <div class="card-pad">
+            <div class="grid-2">
+              <div class="field">
+                <label>Country</label>
+                <select id="input-whatsapp_country" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:var(--r-sm);font-size:14px;color:var(--ink);background:#FBFCFE;outline:none">
+                  <option value="61">🇦🇺 Australia (+61)</option>
+                  <option value="64">🇳🇿 New Zealand (+64)</option>
+                  <option value="1">🇺🇸 United States (+1)</option>
+                  <option value="44">🇬🇧 United Kingdom (+44)</option>
+                  <option value="91">🇮🇳 India (+91)</option>
+                  <option value="92">🇵🇰 Pakistan (+92)</option>
+                  <option value="94">🇱🇰 Sri Lanka (+94)</option>
+                  <option value="880">🇧🇩 Bangladesh (+880)</option>
+                  <option value="86">🇨🇳 China (+86)</option>
+                  <option value="65">🇸🇬 Singapore (+65)</option>
+                  <option value="60">🇲🇾 Malaysia (+60)</option>
+                  <option value="63">🇵🇭 Philippines (+63)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>WhatsApp Phone Number</label>
+                <input id="input-whatsapp_number" type="tel" placeholder="0413736241 or 413736241">
+                <span style="font-size:12px;color:var(--muted);display:block;margin-top:4px">Enter number without + sign. Country code is added automatically.</span>
+              </div>
+            </div>
+            <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534;margin-bottom:16px">
+              <span style="font-weight:600">Preview URL: </span><span id="wa-preview">https://wa.me/61</span>
+            </div>
+            <div class="field">
+              <label>Default Message</label>
+              <span style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">Pre-filled when someone taps the WhatsApp button</span>
+              <textarea id="input-whatsapp_message" rows="3" placeholder="Hi, I'd like to book a driving lesson." maxlength="200"></textarea>
+              <div style="font-size:12px;color:#94A3B8;text-align:right;margin-top:4px"><span id="wa-msg-count">0</span>/200 characters</div>
+            </div>
           </div>
         </div>
         <div class="card">
@@ -1303,7 +1340,39 @@ function initContact(){
   bind('c-phone',function(){ return contactDraft.phone; },function(v){ contactDraft.phone=v; });
   bind('c-email',function(){ return contactDraft.email; },function(v){ contactDraft.email=v; });
   bind('c-address',function(){ return contactDraft.address; },function(v){ contactDraft.address=v; });
-  bind('c-wa',function(){ return contactDraft.wa||''; },function(v){ contactDraft.wa=v; });
+
+  // WhatsApp fields
+  var waCountry=document.getElementById('input-whatsapp_country');
+  var waPhone=document.getElementById('input-whatsapp_number');
+  var waMsg=document.getElementById('input-whatsapp_message');
+  var waMsgCount=document.getElementById('wa-msg-count');
+
+  function updateWaPreview(){
+    var country=waCountry?waCountry.value:'61';
+    var phone=waPhone?waPhone.value.trim():'';
+    if(phone.startsWith('0')) phone=phone.substring(1);
+    phone=phone.replace(/[\s\-\(\)]/g,'');
+    var preview=document.getElementById('wa-preview');
+    if(preview) preview.textContent='https://wa.me/'+country+phone;
+  }
+
+  if(sbClient){
+    sbClient.from('settings').select('key,value').in('key',['whatsapp_country','whatsapp_number','whatsapp_message']).then(function(r){
+      if(!r.data) return;
+      r.data.forEach(function(row){
+        var val; try{ val=JSON.parse(row.value); }catch(e){ val=row.value; }
+        if(row.key==='whatsapp_country'&&waCountry) waCountry.value=val||'61';
+        if(row.key==='whatsapp_number'&&waPhone) waPhone.value=val||'';
+        if(row.key==='whatsapp_message'&&waMsg){ waMsg.value=val||"Hi, I'd like to book a driving lesson."; if(waMsgCount) waMsgCount.textContent=waMsg.value.length; }
+      });
+      updateWaPreview();
+    });
+  }
+
+  if(waCountry) waCountry.addEventListener('change',function(){ updateWaPreview(); renderUnsaved(); });
+  if(waPhone) waPhone.addEventListener('input',function(){ updateWaPreview(); renderUnsaved(); });
+  if(waMsg) waMsg.addEventListener('input',function(){ if(waMsgCount) waMsgCount.textContent=waMsg.value.length; renderUnsaved(); });
+  updateWaPreview();
 
   // Time format toggle
   var fmt24=document.getElementById('fmt24');
@@ -1344,7 +1413,21 @@ function initContact(){
     renderUnsaved();
   });
 
-  function doSave(){ persist('contact',contactDraft); sbSave('phone',contactDraft.phone); sbSave('email',contactDraft.email); sbSave('address',contactDraft.address); sbSave('whatsapp',contactDraft.wa); sbSave('hours',contactDraft.hours); sbSave('hours_format',contactDraft.hours_format||'24h'); sbSave('maps_embed_url',mapsUrlEl.value.trim()); orig=clone(contactDraft); renderUnsaved(); toast('Contact details saved'); }
+  function doSave(){
+    persist('contact',contactDraft);
+    sbSave('phone',contactDraft.phone);
+    sbSave('email',contactDraft.email);
+    sbSave('address',contactDraft.address);
+    sbSave('hours',contactDraft.hours);
+    sbSave('hours_format',contactDraft.hours_format||'24h');
+    sbSave('maps_embed_url',mapsUrlEl.value.trim());
+    if(waCountry) sbSave('whatsapp_country',waCountry.value);
+    if(waPhone) sbSave('whatsapp_number',waPhone.value);
+    if(waMsg) sbSave('whatsapp_message',waMsg.value);
+    orig=clone(contactDraft);
+    renderUnsaved();
+    toast('Contact details saved');
+  }
   document.getElementById('saveContact').onclick=doSave;
   document.getElementById('saveContact2').onclick=doSave;
 }
@@ -1941,6 +2024,9 @@ INSERT INTO settings (key, value) VALUES
   ('favicon_url', '""'),
   ('primary_colour', '"#1E3A5F"'),
   ('accent_colour', '"#2563EB"'),
-  ('hero_style', '"light"')
+  ('hero_style', '"light"'),
+  ('whatsapp_country', '"61"'),
+  ('whatsapp_number', '""'),
+  ('whatsapp_message', '"Hi, I''d like to book a driving lesson."')
 ON CONFLICT (key) DO NOTHING;
 -->

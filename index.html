@@ -344,12 +344,9 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
   .trust-row{gap:10px 18px}
   .trust-item{font-size:13.5px}
   .social-proof{position:static;left:auto;bottom:auto;margin:18px auto 0;justify-content:center;width:max-content;max-width:100%}
-  #why .grid-3{display:block}
-  #why .feature-card{display:grid;grid-template-columns:46px 1fr;grid-template-areas:"icon title" "icon body";column-gap:15px;row-gap:3px;align-items:start;border:none;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;padding:18px 2px}
-  #why .feature-card:last-child{border-bottom:none}
-  #why .feature-ic{grid-area:icon;margin-bottom:0;align-self:center}
-  #why .feature-card h3{grid-area:title;align-self:center;font-size:16px}
-  #why .feature-card p{grid-area:body;font-size:14px}
+  #why-us > div{grid-template-columns:1fr!important;gap:40px!important}
+  .why-photo-stack{height:300px!important}
+  #why-us h2{font-size:28px!important}
   .carousel{margin:0 -16px}
   .hscroll{padding:4px 16px 4px;scrollbar-width:none}
   .hscroll::-webkit-scrollbar{display:none;width:0;height:0}
@@ -571,6 +568,14 @@ function applySettings(s) {
   applySocial('socialTt', 'tiktok_url', 'tiktok_show');
   applySocial('socialYt', 'youtube_url', 'youtube_show');
 
+  // Why Us photos
+  [1, 2, 3].forEach(function(n) {
+    var url = s['why_photo_' + n];
+    var img = document.getElementById('why-photo-' + n);
+    var fallback = document.getElementById('why-fallback-' + n);
+    if (url && img) { img.src = url; img.style.display = 'block'; if (fallback) fallback.style.display = 'none'; }
+  });
+
   var mapsUrl = s['maps_embed_url'];
   var mapsIframe = document.getElementById('maps-iframe');
   var mapPlaceholder = document.getElementById('mapPlaceholder');
@@ -703,43 +708,104 @@ function applySettings(s) {
 </section>
 
 <!-- WHY CHOOSE US -->
-<section class="section section--grey" id="why">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Why Choose Haq Driving?</h2>
-      <p>A local team dedicated to helping you become a safe, confident driver and pass your test first time.</p>
+<section id="why-us" style="padding:80px 0;background:#F8FAFC;">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+
+    <!-- LEFT: Stacked overlapping photos -->
+    <div class="why-photo-stack" style="position:relative;height:520px;">
+
+      <!-- Photo 1 — bottom left, tilted slightly left -->
+      <div style="position:absolute;bottom:0;left:0;width:62%;height:340px;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.15);transform:rotate(-3deg);z-index:1;">
+        <div id="why-fallback-1" style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#1E3A5F,#2563EB);display:flex;align-items:center;justify-content:center;color:white;font-size:48px;">🚗</div>
+        <img src="" id="why-photo-1" alt="Driving lesson" style="width:100%;height:100%;object-fit:cover;object-position:center;position:relative;z-index:1;display:none;">
+      </div>
+
+      <!-- Photo 2 — top right, tilted slightly right -->
+      <div style="position:absolute;top:0;right:0;width:62%;height:340px;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.15);transform:rotate(3deg);z-index:2;">
+        <div id="why-fallback-2" style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#2563EB,#1E3A5F);display:flex;align-items:center;justify-content:center;color:white;font-size:48px;">🏆</div>
+        <img src="" id="why-photo-2" alt="Driving lesson" style="width:100%;height:100%;object-fit:cover;object-position:center;position:relative;z-index:1;display:none;">
+      </div>
+
+      <!-- Photo 3 — center front, no rotation -->
+      <div style="position:absolute;bottom:60px;left:50%;transform:translateX(-50%);width:54%;height:280px;border-radius:20px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.25);z-index:3;border:4px solid white;">
+        <div id="why-fallback-3" style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#1E293B,#2563EB);display:flex;align-items:center;justify-content:center;color:white;font-size:48px;">⭐</div>
+        <img src="" id="why-photo-3" alt="Driving lesson" style="width:100%;height:100%;object-fit:cover;object-position:center;position:relative;z-index:1;display:none;">
+      </div>
+
+      <!-- Stats badge floating bottom left -->
+      <div style="position:absolute;bottom:20px;left:20px;background:white;border-radius:16px;padding:12px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.12);z-index:4;display:flex;align-items:center;gap:12px;">
+        <div style="width:44px;height:44px;background:#EFF6FF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;">✅</div>
+        <div>
+          <div style="font-size:20px;font-weight:800;color:#1E293B;line-height:1;">500+</div>
+          <div style="font-size:12px;color:#64748B;margin-top:2px;">Students Passed</div>
+        </div>
+      </div>
+
+      <!-- Rating badge floating top left -->
+      <div style="position:absolute;top:20px;left:10px;background:#2563EB;border-radius:16px;padding:10px 16px;box-shadow:0 8px 24px rgba(37,99,235,0.4);z-index:4;text-align:center;">
+        <div style="font-size:22px;font-weight:800;color:white;line-height:1;">5★</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;">Google Rating</div>
+      </div>
+
     </div>
-    <div class="grid-3">
-      <article class="feature-card">
-        <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-        <h3>Patient &amp; Friendly Instructors</h3>
-        <p>Calm, encouraging teaching that suits nervous beginners and builds real confidence behind the wheel.</p>
-      </article>
-      <article class="feature-card">
-        <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2v-3l2-5a2 2 0 0 1 2-1.5h8A2 2 0 0 1 19 5l2 5v3a2 2 0 0 1-2 2M5 17v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2m8 0v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2"/><circle cx="7.5" cy="13.5" r=".5" fill="currentColor"/><circle cx="16.5" cy="13.5" r=".5" fill="currentColor"/></svg></div>
-        <h3>Automatic Driving Lessons</h3>
-        <p>Modern dual-control automatic vehicles — easier to learn in and less stressful from day one.</p>
-      </article>
-      <article class="feature-card">
-        <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div>
-        <h3>Flexible Scheduling</h3>
-        <p>Lessons 7 days a week — mornings, afternoons and weekends to fit around school, work or family.</p>
-      </article>
-      <article class="feature-card">
-        <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <h3>Local Sydney Roads</h3>
-        <p>Deep knowledge of Sydney test routes, tricky intersections and assessment criteria — nothing surprises you.</p>
-      </article>
-      <article class="feature-card">
-        <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z"/><polyline points="9 12 11 14 15 10"/></svg></div>
-        <h3>Test Preparation</h3>
-        <p>Structured practice on real NSW driving test routes so you walk in prepared and confident.</p>
-      </article>
-      <article class="feature-card">
-        <div class="feature-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9a2.5 2.5 0 0 0-2.5-1.5c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.9 2.5 2-1 2-2.5 2A2.5 2.5 0 0 1 9.5 15M12 6v1.5M12 16.5V18"/></svg></div>
-        <h3>Affordable Packages</h3>
-        <p>Save with 5 and 10 lesson packages designed to get you test-ready faster without breaking the budget.</p>
-      </article>
+
+    <!-- RIGHT: Heading + feature cards -->
+    <div>
+      <p style="font-size:13px;font-weight:700;color:#2563EB;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 12px;">Why Choose Us</p>
+      <h2 style="font-size:38px;font-weight:800;color:#1E293B;line-height:1.2;margin:0 0 12px;">Why Choose<br>Haq Driving?</h2>
+      <p style="font-size:16px;color:#64748B;line-height:1.6;margin:0 0 36px;">A local team dedicated to helping you become a safe, confident driver and pass your test first time.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:38px;height:38px;background:#EFF6FF;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">💙</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:4px;">Patient Instructors</div>
+            <div style="font-size:13px;color:#64748B;line-height:1.4;">Calm teaching for nervous beginners</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:38px;height:38px;background:#EFF6FF;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">🚗</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:4px;">Automatic Lessons</div>
+            <div style="font-size:13px;color:#64748B;line-height:1.4;">Modern dual-control vehicles</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:38px;height:38px;background:#EFF6FF;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">🕐</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:4px;">Flexible Scheduling</div>
+            <div style="font-size:13px;color:#64748B;line-height:1.4;">7 days, mornings to evenings</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:38px;height:38px;background:#EFF6FF;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">📍</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:4px;">Local Sydney Roads</div>
+            <div style="font-size:13px;color:#64748B;line-height:1.4;">Deep knowledge of test routes</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:38px;height:38px;background:#EFF6FF;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">🛡</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:4px;">Test Preparation</div>
+            <div style="font-size:13px;color:#64748B;line-height:1.4;">Real NSW test route practice</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:38px;height:38px;background:#EFF6FF;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">💰</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#1E293B;margin-bottom:4px;">Affordable Packages</div>
+            <div style="font-size:13px;color:#64748B;line-height:1.4;">Save with multi-lesson packages</div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </section>

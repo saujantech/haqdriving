@@ -475,6 +475,46 @@ h1,h2,h3,h4{color:var(--ink);letter-spacing:-.02em;line-height:1.2}
             </div>
           </div>
         </div>
+        <div class="card">
+          <div class="card-head"><h3>Why Choose Us Photos</h3><span class="sub">3 photos displayed in the Why Choose Us section</span></div>
+          <div class="card-pad">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+              <!-- Photo 1 -->
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;">Photo 1 — Bottom Left</div>
+                <div style="height:120px;border-radius:8px;border:2px dashed var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;margin-bottom:10px;overflow:hidden;position:relative">
+                  <span style="color:var(--muted);font-size:12px" id="why-photo-1-label">No photo</span>
+                  <img id="why-photo-1-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none">
+                </div>
+                <input type="file" id="why-photo-1-file" accept="image/*" style="display:none">
+                <button class="btn btn--ghost btn--sm" id="why-photo-1-btn" style="width:100%;margin-bottom:6px;">Upload</button>
+                <div style="font-size:12px;color:var(--muted);min-height:16px" id="why-photo-1-status"></div>
+              </div>
+              <!-- Photo 2 -->
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;">Photo 2 — Top Right</div>
+                <div style="height:120px;border-radius:8px;border:2px dashed var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;margin-bottom:10px;overflow:hidden;position:relative">
+                  <span style="color:var(--muted);font-size:12px" id="why-photo-2-label">No photo</span>
+                  <img id="why-photo-2-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none">
+                </div>
+                <input type="file" id="why-photo-2-file" accept="image/*" style="display:none">
+                <button class="btn btn--ghost btn--sm" id="why-photo-2-btn" style="width:100%;margin-bottom:6px;">Upload</button>
+                <div style="font-size:12px;color:var(--muted);min-height:16px" id="why-photo-2-status"></div>
+              </div>
+              <!-- Photo 3 -->
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;">Photo 3 — Center Front</div>
+                <div style="height:120px;border-radius:8px;border:2px dashed var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;margin-bottom:10px;overflow:hidden;position:relative">
+                  <span style="color:var(--muted);font-size:12px" id="why-photo-3-label">No photo</span>
+                  <img id="why-photo-3-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none">
+                </div>
+                <input type="file" id="why-photo-3-file" accept="image/*" style="display:none">
+                <button class="btn btn--ghost btn--sm" id="why-photo-3-btn" style="width:100%;margin-bottom:6px;">Upload</button>
+                <div style="font-size:12px;color:var(--muted);min-height:16px" id="why-photo-3-status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1237,6 +1277,50 @@ function initHeroPhotoUpload(){
   }
 }
 
+// ── Why Us Photo uploads ──────────────────────────────────────
+function initWhyPhotos(){
+  [1, 2, 3].forEach(function(n) {
+    var key = 'why_photo_' + n;
+    var fileInput = document.getElementById('why-photo-' + n + '-file');
+    var btn = document.getElementById('why-photo-' + n + '-btn');
+    var status = document.getElementById('why-photo-' + n + '-status');
+    var previewImg = document.getElementById('why-photo-' + n + '-img');
+    var previewLabel = document.getElementById('why-photo-' + n + '-label');
+
+    // Load existing
+    if (sbClient) {
+      sbClient.from('settings').select('value').eq('key', key).maybeSingle().then(function(r) {
+        if (r.data && r.data.value) {
+          try { var url = JSON.parse(r.data.value); if (url) { previewImg.src = url; previewImg.style.display = 'block'; previewLabel.style.display = 'none'; } } catch(e) {}
+        }
+      });
+    }
+
+    btn.addEventListener('click', function() { fileInput.click(); });
+    fileInput.addEventListener('change', function() {
+      var file = fileInput.files[0]; if (!file) return;
+      previewImg.src = URL.createObjectURL(file);
+      previewImg.style.display = 'block'; previewLabel.style.display = 'none';
+      status.textContent = 'Compressing…';
+      compressImage(file, 1200, 800, 0.85, function(compressed) {
+        status.textContent = 'Uploading…';
+        var token = localStorage.getItem('sb_access_token');
+        if (!token) { status.textContent = 'Not authenticated'; return; }
+        var filename = 'why_photo_' + n + '_' + Date.now() + '.jpg';
+        fetch(window.SB_URL + '/storage/v1/object/photos/' + filename, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'image/jpeg', 'x-upsert': 'true' },
+          body: compressed
+        }).then(function(r) {
+          if (!r.ok) { return r.text().then(function(t) { throw new Error(t); }); }
+          var publicUrl = window.SB_URL + '/storage/v1/object/public/photos/' + filename;
+          return sbSave(key, publicUrl).then(function() { status.textContent = 'Saved ✓'; setTimeout(function() { status.textContent = ''; }, 3000); });
+        }).catch(function(e) { status.textContent = 'Error: ' + e.message; });
+      });
+    });
+  });
+}
+
 // ── Success Photos view ───────────────────────────────────────
 function initPhotos(){
   var grid=document.getElementById('photosGrid');
@@ -1434,6 +1518,7 @@ function initSocial(){
 function initViews(){
   initSettings();
   initHeroPhotoUpload();
+  initWhyPhotos();
   initPackages();
   initFaq();
   initAreas();

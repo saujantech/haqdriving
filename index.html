@@ -124,6 +124,27 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 /* Scroll indicator */
 .scroll-indicator{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:#94A3B8;font-size:12px;animation:scrollBounce 2s ease infinite;cursor:pointer;white-space:nowrap}
 .scroll-arrow{width:20px;height:20px;border-right:2px solid #94A3B8;border-bottom:2px solid #94A3B8;transform:rotate(45deg)}
+/* Booking modal */
+@keyframes modalSlideUp{from{opacity:0;transform:translateY(40px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.booking-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
+.booking-overlay.open{display:flex}
+.booking-box{background:#fff;border-radius:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,0.2);animation:modalSlideUp 0.3s ease forwards}
+.booking-head{display:flex;align-items:center;justify-content:space-between;padding:24px 28px 0}
+.booking-head h3{font-size:20px;font-weight:800;color:var(--ink)}
+.booking-close{background:none;border:none;font-size:28px;line-height:1;cursor:pointer;color:var(--muted);padding:0 4px}
+.booking-body{padding:20px 28px 28px}
+.booking-body .field{margin-bottom:16px}
+.booking-body label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.booking-body input,.booking-body select,.booking-body textarea{width:100%;padding:11px 14px;border:1.5px solid #D1D9E6;border-radius:9px;font-size:14.5px;font-family:inherit;outline:none;transition:border-color .15s}
+.booking-body input:focus,.booking-body select:focus,.booking-body textarea:focus{border-color:var(--blue)}
+.booking-body textarea{resize:vertical;min-height:90px}
+.booking-body .field.error input,.booking-body .field.error select{border-color:#DC2626}
+.booking-body .err-msg{display:none;font-size:12px;color:#DC2626;margin-top:4px}
+.booking-body .field.error .err-msg{display:block}
+.booking-success{display:none;text-align:center;padding:48px 28px}
+.booking-success.show{display:block}
+.booking-success .check{width:60px;height:60px;border-radius:50%;background:#E4F3EA;color:var(--green);display:grid;place-items:center;margin:0 auto 16px}
+.booking-success .check svg{width:28px;height:28px}
 .social-proof{position:absolute;left:18px;bottom:-26px;background:#fff;border-radius:14px;box-shadow:var(--shadow-lift);padding:13px 18px;display:flex;align-items:center;gap:13px;border:1px solid var(--line)}
 .avatar-stack{display:flex}
 .avatar-stack span{width:32px;height:32px;border-radius:50%;border:2.5px solid #fff;margin-left:-10px;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
@@ -447,6 +468,7 @@ function applySettings(s) {
     var cPh = document.getElementById('contactPhone'); if (cPh) { cPh.textContent = ph; cPh.setAttribute('href', phHref); }
     var fPh = document.getElementById('footerPhone'); if (fPh) { fPh.textContent = ph; fPh.setAttribute('href', phHref); }
     var fmPh = document.getElementById('formPhone'); if (fmPh) { fmPh.textContent = ph; fmPh.setAttribute('href', phHref); }
+    var mPh = document.getElementById('modalPhone'); if (mPh) { mPh.textContent = ph; mPh.setAttribute('href', phHref); }
   }
 
   if (s.whatsapp) {
@@ -558,6 +580,8 @@ function applySettings(s) {
   }
 
   if (s.packages && Array.isArray(s.packages)) {
+    window.currentPackages = s.packages;
+    updateLessonTypeDropdown();
     var pkgScroller = document.getElementById('scroller-packages');
     if (pkgScroller) {
       var tickSvg = '<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
@@ -567,7 +591,7 @@ function applySettings(s) {
           + '<h3>' + p.name + '</h3>'
           + '<div class="pkg-price"><span class="amt">' + p.price + '</span><span class="per">' + p.duration + '</span></div>'
           + '<ul class="pkg-feats">' + (p.feats||[]).map(function(f){ return '<li>' + tickSvg + f + '</li>'; }).join('') + '</ul>'
-          + '<a href="#contact" class="btn ' + (p.popular ? 'btn--primary' : 'btn--outline') + ' btn--block pkg-btn">' + (p.button||'Book Now') + '</a>'
+          + '<a href="#" onclick="openBookingModal(\'' + p.name.replace(/'/g,"\\'") + '\');return false;" class="btn ' + (p.popular ? 'btn--primary' : 'btn--outline') + ' btn--block pkg-btn">' + (p.button||'Book Now') + '</a>'
           + '</article>';
       }).join('');
     }
@@ -638,7 +662,7 @@ function applySettings(s) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         <span id="navPhoneText" class="dyn"></span>
       </a>
-      <a href="#contact" class="btn btn--primary">Book a Lesson</a>
+      <a href="#" onclick="openBookingModal();return false;" class="btn btn--primary">Book a Lesson</a>
       <button class="hamburger" id="openDrawer" aria-label="Open menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
@@ -669,7 +693,7 @@ function applySettings(s) {
   </nav>
   <div class="drawer-cta">
     <a href="tel:+61450000000" class="btn btn--ghost btn--block" id="drawerPhone">Call <span id="drawerPhoneText" class="dyn"></span></a>
-    <a href="#contact" class="btn btn--primary btn--block">Book a Lesson</a>
+    <a href="#" onclick="openBookingModal();return false;" class="btn btn--primary btn--block">Book a Lesson</a>
   </div>
 </aside>
 
@@ -691,7 +715,7 @@ function applySettings(s) {
       <h1 id="heroH1" class="skeleton-text">Learn to Drive with <span class="accent">Confidence</span></h1>
       <p class="hero-sub skeleton-text" id="heroSub">Professional driving lessons across Sydney. Patient, qualified instruction in automatic vehicles — available 7 days a week to fit your schedule.</p>
       <div class="hero-ctas">
-        <a href="#contact" class="btn btn--primary btn--lg">Book a Lesson</a>
+        <a href="#" onclick="openBookingModal();return false;" class="btn btn--primary btn--lg">Book a Lesson</a>
         <a href="tel:+61450000000" class="btn btn--ghost btn--lg">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           Call Now
@@ -1060,7 +1084,7 @@ function applySettings(s) {
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Pick-up &amp; drop-off</li>
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Automatic vehicle</li>
         </ul>
-        <a href="#contact" class="btn btn--outline btn--block pkg-btn">Book Now</a>
+        <a href="#" onclick="openBookingModal();return false;" class="btn btn--outline btn--block pkg-btn">Book Now</a>
       </article>
       <article class="pkg-card popular">
         <span class="pkg-flag">Most Popular</span>
@@ -1071,7 +1095,7 @@ function applySettings(s) {
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Personalised lesson plan</li>
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Save $30 vs single lessons</li>
         </ul>
-        <a href="#contact" class="btn btn--primary btn--block pkg-btn">Book Now</a>
+        <a href="#" onclick="openBookingModal();return false;" class="btn btn--primary btn--block pkg-btn">Book Now</a>
       </article>
       <article class="pkg-card">
         <h3>10 Lesson Package</h3>
@@ -1081,7 +1105,7 @@ function applySettings(s) {
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Full test preparation</li>
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Best value — save $100</li>
         </ul>
-        <a href="#contact" class="btn btn--outline btn--block pkg-btn">Book Now</a>
+        <a href="#" onclick="openBookingModal();return false;" class="btn btn--outline btn--block pkg-btn">Book Now</a>
       </article>
       <article class="pkg-card">
         <h3>Driving Test Package</h3>
@@ -1092,7 +1116,7 @@ function applySettings(s) {
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Use of instructor's vehicle to sit the test</li>
           <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Drop-off after the test result is received</li>
         </ul>
-        <a href="#contact" class="btn btn--outline btn--block pkg-btn">Book Now</a>
+        <a href="#" onclick="openBookingModal();return false;" class="btn btn--outline btn--block pkg-btn">Book Now</a>
       </article>
     </div>
     </div>
@@ -1300,7 +1324,7 @@ function applySettings(s) {
 
 <!-- Mobile sticky CTA -->
 <div class="sticky-cta">
-  <a href="#contact" class="btn btn--primary">Book a Lesson</a>
+  <a href="#" onclick="openBookingModal();return false;" class="btn btn--primary">Book a Lesson</a>
 </div>
 
 <!-- WhatsApp FAB -->
@@ -1529,6 +1553,60 @@ function applySettings(s) {
   document.addEventListener('DOMContentLoaded', initApp);
 })();
 </script>
+<!-- Booking Modal -->
+<div class="booking-overlay" id="bookingOverlay">
+  <div class="booking-box" id="bookingBox">
+    <div class="booking-head">
+      <h3>Book a Lesson</h3>
+      <button class="booking-close" id="bookingClose" aria-label="Close">×</button>
+    </div>
+    <div class="booking-body">
+      <form id="modalForm" novalidate>
+        <div class="field">
+          <label for="m-name">Full name</label>
+          <input type="text" id="m-name" placeholder="Jane Smith" required>
+          <span class="err-msg">Please enter your name</span>
+        </div>
+        <div class="field">
+          <label for="m-phone">Phone number</label>
+          <input type="tel" id="m-phone" placeholder="0400 000 000" required>
+          <span class="err-msg">Please enter your phone number</span>
+        </div>
+        <div class="field">
+          <label for="m-email">Email address</label>
+          <input type="email" id="m-email" placeholder="jane@example.com" required>
+          <span class="err-msg">Please enter a valid email</span>
+        </div>
+        <div class="field">
+          <label for="modal-lesson">Lesson type</label>
+          <select id="modal-lesson">
+            <option>Single Lesson</option>
+            <option>5 Lesson Package</option>
+            <option>10 Lesson Package</option>
+            <option>Driving Test Package</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="m-msg">Message (optional)</label>
+          <textarea id="m-msg" placeholder="Tell us your experience level and preferred times…"></textarea>
+        </div>
+        <button type="submit" class="btn btn--primary btn--lg btn--block submit-btn" id="modalSubmitBtn">
+          <span class="btn-text">Send Enquiry</span>
+          <span class="spinner"></span>
+        </button>
+        <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:10px">Or call <a href="#" class="dyn" id="modalPhone" style="color:var(--blue)"></a></p>
+        <p id="modalError" style="display:none;color:#DC2626;font-size:13px;text-align:center;margin-top:8px">Something went wrong. Please try again or call us directly.</p>
+      </form>
+      <div class="booking-success" id="bookingSuccess">
+        <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h3>Thanks — enquiry sent!</h3>
+        <p style="color:var(--muted);margin-top:8px">We'll be in touch the same day to lock in your lesson.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Lightbox -->
 <div id="lightbox" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;">
   <button id="lb-close" style="position:absolute;top:16px;right:20px;background:none;border:none;color:white;font-size:36px;cursor:pointer;z-index:1;line-height:1;">×</button>
@@ -1542,6 +1620,100 @@ function applySettings(s) {
   </div>
   <div id="lb-dots" style="display:flex;gap:8px;margin-top:8px;"></div>
 </div>
+
+<script>
+// ── Booking Modal ─────────────────────────────────────────────
+window.currentPackages = [];
+
+function updateLessonTypeDropdown() {
+  ['modal-lesson', 'f-type'].forEach(function(id) {
+    var select = document.getElementById(id);
+    if (!select) return;
+    var current = select.value;
+    select.innerHTML = '';
+    (window.currentPackages || []).forEach(function(pkg) {
+      var opt = document.createElement('option');
+      opt.value = pkg.name; opt.textContent = pkg.name;
+      select.appendChild(opt);
+    });
+    var other = document.createElement('option');
+    other.value = 'Other'; other.textContent = 'Other';
+    select.appendChild(other);
+    if (current) select.value = current;
+  });
+}
+
+function openBookingModal(preselect) {
+  var overlay = document.getElementById('bookingOverlay');
+  var mForm = document.getElementById('modalForm');
+  var mSuccess = document.getElementById('bookingSuccess');
+  var mError = document.getElementById('modalError');
+  if (!overlay) return;
+  // Reset form state
+  if (mForm) { mForm.reset(); mForm.style.display = ''; mForm.querySelectorAll('.field').forEach(function(f){ f.classList.remove('error'); }); }
+  if (mSuccess) mSuccess.classList.remove('show');
+  if (mError) mError.style.display = 'none';
+  var mSubmit = document.getElementById('modalSubmitBtn');
+  if (mSubmit) { mSubmit.classList.remove('loading'); mSubmit.disabled = false; }
+  // Preselect package if passed
+  if (preselect) { var sel = document.getElementById('modal-lesson'); if (sel) sel.value = preselect; }
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBookingModal() {
+  var overlay = document.getElementById('bookingOverlay');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('bookingClose').addEventListener('click', closeBookingModal);
+document.getElementById('bookingOverlay').addEventListener('click', function(e) { if (e.target === this) closeBookingModal(); });
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('bookingOverlay').classList.contains('open')) closeBookingModal();
+});
+
+// Modal form submit
+document.getElementById('modalForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var name = document.getElementById('m-name');
+  var phone = document.getElementById('m-phone');
+  var email = document.getElementById('m-email');
+  var mError = document.getElementById('modalError');
+  var mSubmit = document.getElementById('modalSubmitBtn');
+  var ok = true;
+  function mErr(el, on) { el.closest('.field').classList.toggle('error', on); }
+  if (!name.value.trim()) { mErr(name, true); ok = false; } else mErr(name, false);
+  if (!phone.value.trim()) { mErr(phone, true); ok = false; } else mErr(phone, false);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { mErr(email, true); ok = false; } else mErr(email, false);
+  if (!ok) return;
+  mSubmit.classList.add('loading'); mSubmit.disabled = true; mError.style.display = 'none';
+  var payload = {
+    full_name: name.value.trim(),
+    phone: phone.value.trim(),
+    email: email.value.trim(),
+    lesson_type: document.getElementById('modal-lesson').value,
+    message: document.getElementById('m-msg').value.trim()
+  };
+  fetch(window.SB_URL + '/rest/v1/enquiries', {
+    method: 'POST',
+    headers: { 'apikey': window.SB_ANON, 'Authorization': 'Bearer ' + window.SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify(payload)
+  }).then(function(r) {
+    if (r.ok || r.status === 201) {
+      return fetch('/api/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    }
+    return r.text().then(function(t) { throw new Error(t); });
+  }).then(function() {
+    document.getElementById('modalForm').style.display = 'none';
+    document.getElementById('bookingSuccess').classList.add('show');
+  }).catch(function(err) {
+    console.error('Modal submit error:', err);
+    mError.style.display = 'block';
+    mSubmit.classList.remove('loading'); mSubmit.disabled = false;
+  });
+});
+</script>
 
 <script>
 // ── Lightbox ──────────────────────────────────────────────────

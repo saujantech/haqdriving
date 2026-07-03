@@ -244,6 +244,7 @@ h1,h2,h3,h4{color:var(--ink);letter-spacing:-.02em;line-height:1.2}
   .page-head .actions{margin-left:0;width:100%}
   .hours-row{grid-template-columns:1fr;gap:8px}
   .toast-wrap{left:16px;right:16px;bottom:16px}
+  .logo-cards-grid{grid-template-columns:1fr!important}
 }
 </style>
 </head>
@@ -681,22 +682,44 @@ h1,h2,h3,h4{color:var(--ink);letter-spacing:-.02em;line-height:1.2}
         </div>
       </div>
 
-      <!-- Logo card -->
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-head">
-          <h3>Website Logo</h3>
-          <span style="font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:3px 8px;cursor:help" title="Your logo appears in the navigation bar and footer. Recommended size: 200x60px PNG with transparent background.">? tip</span>
-        </div>
-        <div style="padding:20px 22px 22px">
-          <div id="brand-logo-preview" style="height:80px;border:2px dashed #E2E8F0;border-radius:12px;background:#F8FAFC;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden">
-            <img id="brand-logo-img" src="" alt="Logo" style="max-height:70px;max-width:100%;object-fit:contain;display:none">
-            <span id="brand-logo-empty" style="font-size:13px;color:var(--muted)">No logo uploaded</span>
+      <!-- Logo cards — light + dark side by side -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" class="logo-cards-grid">
+
+        <!-- Light logo -->
+        <div class="card">
+          <div class="card-head"><h3>Logo — Light Version</h3></div>
+          <div style="padding:16px 20px 20px">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Used on white/light backgrounds such as the navigation bar</p>
+            <div style="height:100px;border:1px solid #E2E8F0;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden">
+              <img id="brand-logo-light-img" src="" alt="Light logo" style="max-height:80px;max-width:90%;object-fit:contain;display:none">
+              <span id="brand-logo-light-empty" style="font-size:13px;color:var(--muted)">No logo uploaded</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+              <input type="file" id="brand-logo-light-file" accept=".png,.svg,.webp" style="display:none">
+              <button class="btn btn--primary btn--sm" id="brand-logo-light-btn">Upload Light Logo</button>
+              <button class="btn btn--ghost btn--sm" id="brand-logo-light-remove" style="display:none;color:var(--red)">Remove</button>
+            </div>
+            <p style="font-size:11px;color:var(--muted);line-height:1.5">Best format: PNG with transparent background<br>Recommended size: 200×60px</p>
+            <span id="brand-logo-light-status" style="font-size:13px;color:var(--muted);display:block;margin-top:6px"></span>
           </div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-            <input type="file" id="brand-logo-file" accept=".png,.jpg,.jpeg,.svg,.webp" style="display:none">
-            <button class="btn btn--primary btn--sm" id="brand-logo-btn">Upload Logo</button>
-            <button class="btn btn--ghost btn--sm" id="brand-logo-remove" style="display:none;color:var(--red)">Remove Logo</button>
-            <span id="brand-logo-status" style="font-size:13px;color:var(--muted)"></span>
+        </div>
+
+        <!-- Dark logo -->
+        <div class="card">
+          <div class="card-head"><h3>Logo — Dark Version</h3></div>
+          <div style="padding:16px 20px 20px">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Used on dark/navy backgrounds such as the footer</p>
+            <div style="height:100px;border-radius:12px;background:#1E3A5F;display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden">
+              <img id="brand-logo-dark-img" src="" alt="Dark logo" style="max-height:80px;max-width:90%;object-fit:contain;display:none">
+              <span id="brand-logo-dark-empty" style="font-size:13px;color:rgba(255,255,255,0.5)">No logo uploaded</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+              <input type="file" id="brand-logo-dark-file" accept=".png,.svg,.webp" style="display:none">
+              <button class="btn btn--primary btn--sm" id="brand-logo-dark-btn">Upload Dark Logo</button>
+              <button class="btn btn--ghost btn--sm" id="brand-logo-dark-remove" style="display:none;color:var(--red)">Remove</button>
+            </div>
+            <p style="font-size:11px;color:var(--muted);line-height:1.5">Best format: PNG with transparent background<br>White or light coloured logo works best</p>
+            <span id="brand-logo-dark-status" style="font-size:13px;color:var(--muted);display:block;margin-top:6px"></span>
           </div>
         </div>
       </div>
@@ -1651,15 +1674,21 @@ function initBranding(){
   // Load existing values from Supabase
   function loadBrandingSettings(){
     if(!sbClient) return;
-    sbClient.from('settings').select('key,value').in('key',['logo_url','favicon_url','primary_colour','accent_colour']).then(function(r){
+    sbClient.from('settings').select('key,value').in('key',['logo_light_url','logo_dark_url','favicon_url','primary_colour','accent_colour']).then(function(r){
       if(!r.data) return;
       r.data.forEach(function(row){
         var val; try{ val=JSON.parse(row.value); }catch(e){ val=row.value; }
-        if(row.key==='logo_url' && val){
-          document.getElementById('brand-logo-img').src=val;
-          document.getElementById('brand-logo-img').style.display='block';
-          document.getElementById('brand-logo-empty').style.display='none';
-          document.getElementById('brand-logo-remove').style.display='';
+        if(row.key==='logo_light_url' && val){
+          document.getElementById('brand-logo-light-img').src=val;
+          document.getElementById('brand-logo-light-img').style.display='block';
+          document.getElementById('brand-logo-light-empty').style.display='none';
+          document.getElementById('brand-logo-light-remove').style.display='';
+        }
+        if(row.key==='logo_dark_url' && val){
+          document.getElementById('brand-logo-dark-img').src=val;
+          document.getElementById('brand-logo-dark-img').style.display='block';
+          document.getElementById('brand-logo-dark-empty').style.display='none';
+          document.getElementById('brand-logo-dark-remove').style.display='';
         }
         if(row.key==='favicon_url' && val){
           document.getElementById('brand-fav-img').src=val;
@@ -1680,48 +1709,55 @@ function initBranding(){
   document.querySelector('.sb-link[data-view="branding"]').addEventListener('click',function(){ setTimeout(loadBrandingSettings,50); });
   loadBrandingSettings();
 
-  // ── Logo upload ──
-  var logoFile=document.getElementById('brand-logo-file');
-  document.getElementById('brand-logo-btn').addEventListener('click',function(){ logoFile.click(); });
-  logoFile.addEventListener('change',function(){
-    var file=logoFile.files[0]; if(!file) return;
-    var status=document.getElementById('brand-logo-status');
-    status.textContent='Compressing…';
-    compressImage(file,400,200,0.9,function(compressed){
-      status.textContent='Uploading…';
-      var token=localStorage.getItem('sb_access_token');
-      if(!token){ status.textContent='Not authenticated'; return; }
-      var ext=compressed.name.split('.').pop()||'jpg';
-      var filename='logo_'+Date.now()+'.'+ext;
-      fetch(window.SB_URL+'/storage/v1/object/photos/'+filename,{
-        method:'PUT',
-        headers:{'Authorization':'Bearer '+token,'Content-Type':compressed.type,'x-upsert':'true'},
-        body:compressed
-      }).then(function(r){
-        if(!r.ok){ r.text().then(function(t){ status.textContent='Upload failed: '+t; }); return; }
-        var url=window.SB_URL+'/storage/v1/object/public/photos/'+filename;
-        sbSave('logo_url',url).then(function(){
-          document.getElementById('brand-logo-img').src=url;
-          document.getElementById('brand-logo-img').style.display='block';
-          document.getElementById('brand-logo-empty').style.display='none';
-          document.getElementById('brand-logo-remove').style.display='';
-          status.textContent='';
-          toast('Logo updated successfully');
-        });
-      }).catch(function(e){ status.textContent='Error: '+e.message; });
-    });
-  });
+  // ── Logo upload helper ──
+  function initLogoUpload(variant){
+    var settingsKey='logo_'+variant+'_url';
+    var fileInput=document.getElementById('brand-logo-'+variant+'-file');
+    var btn=document.getElementById('brand-logo-'+variant+'-btn');
+    var removeBtn=document.getElementById('brand-logo-'+variant+'-remove');
+    var img=document.getElementById('brand-logo-'+variant+'-img');
+    var empty=document.getElementById('brand-logo-'+variant+'-empty');
+    var status=document.getElementById('brand-logo-'+variant+'-status');
 
-  // ── Logo remove ──
-  document.getElementById('brand-logo-remove').addEventListener('click',function(){
-    sbSave('logo_url','').then(function(){
-      document.getElementById('brand-logo-img').src='';
-      document.getElementById('brand-logo-img').style.display='none';
-      document.getElementById('brand-logo-empty').style.display='';
-      document.getElementById('brand-logo-remove').style.display='none';
-      toast('Logo removed');
+    btn.addEventListener('click',function(){ fileInput.click(); });
+    fileInput.addEventListener('change',function(){
+      var file=fileInput.files[0]; if(!file) return;
+      status.textContent='Compressing…';
+      compressImage(file,600,180,0.9,function(compressed){
+        status.textContent='Uploading…';
+        var token=localStorage.getItem('sb_access_token');
+        if(!token){ status.textContent='Not authenticated'; return; }
+        var ext=compressed.name.split('.').pop()||'jpg';
+        var filename='logo_'+variant+'_'+Date.now()+'.'+ext;
+        fetch(window.SB_URL+'/storage/v1/object/photos/'+filename,{
+          method:'PUT',
+          headers:{'Authorization':'Bearer '+token,'Content-Type':compressed.type,'x-upsert':'true'},
+          body:compressed
+        }).then(function(r){
+          if(!r.ok){ r.text().then(function(t){ status.textContent='Upload failed: '+t; }); return; }
+          var url=window.SB_URL+'/storage/v1/object/public/photos/'+filename;
+          sbSave(settingsKey,url).then(function(){
+            img.src=url; img.style.display='block';
+            empty.style.display='none';
+            removeBtn.style.display='';
+            status.textContent='';
+            toast('Logo updated successfully');
+          });
+        }).catch(function(e){ status.textContent='Error: '+e.message; });
+      });
     });
-  });
+
+    removeBtn.addEventListener('click',function(){
+      sbSave(settingsKey,'').then(function(){
+        img.src=''; img.style.display='none';
+        empty.style.display='';
+        removeBtn.style.display='none';
+        toast('Logo removed');
+      });
+    });
+  }
+  initLogoUpload('light');
+  initLogoUpload('dark');
 
   // ── Favicon upload ──
   var favFile=document.getElementById('brand-fav-file');
@@ -1840,7 +1876,8 @@ if ('serviceWorker' in navigator) {
 <!--
 Run in Supabase SQL Editor:
 INSERT INTO settings (key, value) VALUES
-  ('logo_url', '""'),
+  ('logo_light_url', '""'),
+  ('logo_dark_url', '""'),
   ('favicon_url', '""'),
   ('primary_colour', '"#1E3A5F"'),
   ('accent_colour', '"#2563EB"')

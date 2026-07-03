@@ -633,13 +633,26 @@ function applySettings(s) {
   if (primary) document.documentElement.style.setProperty('--navy', primary);
   if (accent) document.documentElement.style.setProperty('--blue', accent);
 
-  // Logo
-  var logoUrl = s['logo_url'];
-  if (logoUrl) {
-    var navLogoImg = document.getElementById('nav-logo-img');
-    var footerLogoImg = document.getElementById('footer-logo-img');
-    if (navLogoImg) { navLogoImg.src = logoUrl; navLogoImg.style.display = 'block'; var navBadge = document.getElementById('nav-badge'); if (navBadge) navBadge.style.display = 'none'; }
-    if (footerLogoImg) { footerLogoImg.src = logoUrl; footerLogoImg.style.display = 'block'; var fBadge = document.getElementById('footer-badge'); if (fBadge) fBadge.style.display = 'none'; }
+  // Logo — light (nav) and dark (footer)
+  var logoLight = s['logo_light_url'];
+  var navLogoImg = document.getElementById('nav-logo-img');
+  var navLogoText = document.getElementById('nav-logo-text');
+  if (logoLight && navLogoImg) {
+    navLogoImg.src = logoLight; navLogoImg.style.display = 'block';
+    if (navLogoText) navLogoText.style.display = 'none';
+  } else {
+    if (navLogoImg) navLogoImg.style.display = 'none';
+    if (navLogoText) navLogoText.style.display = 'flex';
+  }
+  var logoDark = s['logo_dark_url'];
+  var footerLogoImg = document.getElementById('footer-logo-img');
+  var footerLogoText = document.getElementById('footer-logo-text');
+  if (logoDark && footerLogoImg) {
+    footerLogoImg.src = logoDark; footerLogoImg.style.display = 'block';
+    if (footerLogoText) footerLogoText.style.display = 'none';
+  } else {
+    if (footerLogoImg) footerLogoImg.style.display = 'none';
+    if (footerLogoText) footerLogoText.style.display = 'flex';
   }
 
   // Favicon
@@ -668,12 +681,14 @@ function applySettings(s) {
 <header class="header" id="siteHeader">
   <div class="wrap nav">
     <a href="#top" class="brand">
-      <span class="badge" id="nav-badge">HD</span>
-      <img id="nav-logo-img" src="" alt="Logo" style="display:none;max-height:40px;max-width:140px;object-fit:contain">
-      <span class="brand-text">
-        <span class="name" id="navBrandName">Haq Driving</span>
-        <span class="tag" id="navBrandTag">Driving School · Sydney NSW</span>
-      </span>
+      <img id="nav-logo-img" src="" alt="Logo" style="display:none;height:40px;width:auto;object-fit:contain">
+      <div id="nav-logo-text" style="display:flex;align-items:center;gap:11px">
+        <span class="badge">HD</span>
+        <span class="brand-text">
+          <span class="name" id="navBrandName">Haq Driving</span>
+          <span class="tag" id="navBrandTag">Driving School · Sydney NSW</span>
+        </span>
+      </div>
     </a>
     <nav class="nav-links">
       <a href="#lessons">Lessons</a>
@@ -1294,9 +1309,11 @@ function applySettings(s) {
     <div class="footer-top">
       <div>
         <a href="#top" class="brand">
-          <span class="badge" id="footer-badge">HD</span>
-          <img id="footer-logo-img" src="" alt="Logo" style="display:none;max-height:40px;max-width:140px;object-fit:contain">
-          <span class="brand-text"><span class="name" id="footerBrandName">Haq Driving</span><span class="tag" id="footerBrandTag">Driving School · Sydney NSW</span></span>
+          <img id="footer-logo-img" src="" alt="Logo" style="display:none;height:40px;width:auto;object-fit:contain">
+          <div id="footer-logo-text" style="display:flex;align-items:center;gap:11px">
+            <span class="badge">HD</span>
+            <span class="brand-text"><span class="name" id="footerBrandName">Haq Driving</span><span class="tag" id="footerBrandTag">Driving School · Sydney NSW</span></span>
+          </div>
         </a>
         <p class="footer-blurb">Friendly, professional driving lessons across Sydney. Helping learners pass with confidence.</p>
         <div class="social-row">

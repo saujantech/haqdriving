@@ -453,29 +453,40 @@ function applySettings(s) {
   if (hoursRaw && hoursEl) {
     try {
       var h = typeof hoursRaw === 'string' ? JSON.parse(hoursRaw) : hoursRaw;
+      var use12h = (s['hours_format'] === '12h');
+
+      function fmtTime(t) {
+        if (!t) return t;
+        if (!use12h) return t;
+        // Convert HH:MM (24h) to h:MMam/pm
+        var parts = t.split(':');
+        var hh = parseInt(parts[0], 10);
+        var mm = parts[1] || '00';
+        var ampm = hh >= 12 ? 'pm' : 'am';
+        var h12 = hh % 12 || 12;
+        return mm === '00' ? h12 + ampm : h12 + ':' + mm + ampm;
+      }
+
       var hoursHTML = '';
       if (Array.isArray(h)) {
-        // Admin saves as array: [{day:'Monday',open:'06:00',close:'20:00',closed:false},...]
         hoursHTML = h.map(function(row) {
           var time = row.closed
             ? '<span style="color:#EF4444">Closed</span>'
-            : '<span>' + row.open + ' – ' + row.close + '</span>';
+            : '<span>' + fmtTime(row.open) + ' – ' + fmtTime(row.close) + '</span>';
           return '<div class="hours-row"><span class="hours-day">' + row.day + '</span>' + time + '</div>';
         }).join('');
       } else {
-        // Object format: {monday:{open,close,closed},...}
         var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
         var names = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
         hoursHTML = days.map(function(d, i) {
           var day = h[d]; if (!day) return '';
           var time = day.closed
             ? '<span style="color:#EF4444">Closed</span>'
-            : '<span>' + day.open + ' – ' + day.close + '</span>';
+            : '<span>' + fmtTime(day.open) + ' – ' + fmtTime(day.close) + '</span>';
           return '<div class="hours-row"><span class="hours-day">' + names[i] + '</span>' + time + '</div>';
         }).join('');
       }
       if (hoursHTML) hoursEl.innerHTML = hoursHTML;
-      console.log('Hours applied successfully');
     } catch(e) {
       console.error('Hours error:', e);
     }

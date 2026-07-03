@@ -600,7 +600,18 @@ h1,h2,h3,h4{color:var(--ink);letter-spacing:-.02em;line-height:1.2}
           </div>
         </div>
         <div class="card">
-          <div class="card-head"><h3>Business Hours</h3></div>
+          <div class="card-head">
+            <h3>Business Hours</h3>
+            <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)">
+              <span>Time format:</span>
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:500">
+                <input type="radio" name="hoursFormat" id="fmt24" value="24h" style="accent-color:var(--blue)"> 24h
+              </label>
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:500">
+                <input type="radio" name="hoursFormat" id="fmt12" value="12h" style="accent-color:var(--blue)"> AM/PM
+              </label>
+            </div>
+          </div>
           <div class="card-pad" style="padding-top:6px;padding-bottom:6px" id="hoursEl"></div>
         </div>
         <div class="card">
@@ -1079,6 +1090,13 @@ function initContact(){
   bind('c-address',function(){ return contactDraft.address; },function(v){ contactDraft.address=v; });
   bind('c-wa',function(){ return contactDraft.wa||''; },function(v){ contactDraft.wa=v; });
 
+  // Time format toggle
+  var fmt24=document.getElementById('fmt24');
+  var fmt12=document.getElementById('fmt12');
+  var currentFmt=contactDraft.hours_format||'24h';
+  (currentFmt==='12h'?fmt12:fmt24).checked=true;
+  [fmt24,fmt12].forEach(function(r){ r.addEventListener('change',function(){ contactDraft.hours_format=r.value; renderUnsaved(); }); });
+
   var hoursEl=document.getElementById('hoursEl');
   hoursEl.innerHTML=(contactDraft.hours||[]).map(function(h,i){
     return '<div class="hours-row">'
@@ -1111,7 +1129,7 @@ function initContact(){
     renderUnsaved();
   });
 
-  function doSave(){ persist('contact',contactDraft); sbSave('phone',contactDraft.phone); sbSave('email',contactDraft.email); sbSave('address',contactDraft.address); sbSave('whatsapp',contactDraft.wa); sbSave('hours',contactDraft.hours); sbSave('maps_embed_url',mapsUrlEl.value.trim()); orig=clone(contactDraft); renderUnsaved(); toast('Contact details saved'); }
+  function doSave(){ persist('contact',contactDraft); sbSave('phone',contactDraft.phone); sbSave('email',contactDraft.email); sbSave('address',contactDraft.address); sbSave('whatsapp',contactDraft.wa); sbSave('hours',contactDraft.hours); sbSave('hours_format',contactDraft.hours_format||'24h'); sbSave('maps_embed_url',mapsUrlEl.value.trim()); orig=clone(contactDraft); renderUnsaved(); toast('Contact details saved'); }
   document.getElementById('saveContact').onclick=doSave;
   document.getElementById('saveContact2').onclick=doSave;
 }

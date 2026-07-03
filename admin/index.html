@@ -1155,7 +1155,7 @@ function initSettings(){
 
 // ── Hero Style selector ───────────────────────────────────────
 var currentHeroStyle = 'light';
-function selectHeroStyle(style) {
+window.selectHeroStyle = function(style) {
   currentHeroStyle = style;
   var lightCard = document.getElementById('style-opt-light');
   var darkCard = document.getElementById('style-opt-dark');
@@ -1171,7 +1171,8 @@ function selectHeroStyle(style) {
     lightCard.style.border = '2px solid #E2E8F0';
     lightCard.style.background = 'white';
   }
-}
+};
+var selectHeroStyle = window.selectHeroStyle;
 
 // ── Packages view ─────────────────────────────────────────────
 var pkgsDraft=null;

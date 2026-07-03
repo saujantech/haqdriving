@@ -448,21 +448,33 @@ function applySettings(s) {
 
   if (s.address) { set('contactAddress', s.address); set('footerAddress', s.address); }
 
-  var hoursRaw = s['business_hours'];
+  var hoursRaw = s['hours'] || s['business_hours'];
   var hoursEl = document.getElementById('contact-hours');
   if (hoursRaw && hoursEl) {
     try {
       var h = typeof hoursRaw === 'string' ? JSON.parse(hoursRaw) : hoursRaw;
-      var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-      var names = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-      hoursEl.innerHTML = days.map(function(d, i) {
-        var day = h[d];
-        if (!day) return '';
-        var time = day.closed
-          ? '<span style="color:#EF4444">Closed</span>'
-          : '<span>' + day.open + ' – ' + day.close + '</span>';
-        return '<div class="hours-row"><span class="hours-day">' + names[i] + '</span>' + time + '</div>';
-      }).join('');
+      var hoursHTML = '';
+      if (Array.isArray(h)) {
+        // Admin saves as array: [{day:'Monday',open:'06:00',close:'20:00',closed:false},...]
+        hoursHTML = h.map(function(row) {
+          var time = row.closed
+            ? '<span style="color:#EF4444">Closed</span>'
+            : '<span>' + row.open + ' – ' + row.close + '</span>';
+          return '<div class="hours-row"><span class="hours-day">' + row.day + '</span>' + time + '</div>';
+        }).join('');
+      } else {
+        // Object format: {monday:{open,close,closed},...}
+        var days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+        var names = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        hoursHTML = days.map(function(d, i) {
+          var day = h[d]; if (!day) return '';
+          var time = day.closed
+            ? '<span style="color:#EF4444">Closed</span>'
+            : '<span>' + day.open + ' – ' + day.close + '</span>';
+          return '<div class="hours-row"><span class="hours-day">' + names[i] + '</span>' + time + '</div>';
+        }).join('');
+      }
+      if (hoursHTML) hoursEl.innerHTML = hoursHTML;
       console.log('Hours applied successfully');
     } catch(e) {
       console.error('Hours error:', e);

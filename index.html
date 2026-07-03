@@ -229,7 +229,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 .contact-row .cl{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
 .contact-row .cv{font-size:15.5px;font-weight:600;color:var(--ink)}
 .contact-row .cv:hover{color:var(--blue)}
-.dynamic-content{visibility:hidden}.dynamic-content.loaded{visibility:visible;transition:opacity 0.2s ease}
+.dyn{visibility:hidden;transition:visibility 0s}.dyn.ready{visibility:visible}
 .skeleton-text{display:inline-block;background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%);background-size:200% 100%;animation:skeleton-pulse 1.5s infinite;border-radius:4px;color:transparent!important;min-width:120px;min-height:1em}
 .skeleton-text *{visibility:hidden}
 @keyframes skeleton-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -396,6 +396,179 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
   .btn:active{transform:scale(.97)}
 }
 </style>
+<script>
+// ── Apply settings immediately from cache (zero-flash) ────────────
+var HAQ_CACHE_KEY = 'haq_settings';
+var HAQ_CACHE_TIME = 'haq_settings_time';
+var HAQ_CACHE_TTL = 30000;
+
+function markLoaded() {
+  var h1 = document.getElementById('heroH1');
+  var sub = document.getElementById('heroSub');
+  if (h1) h1.classList.remove('skeleton-text');
+  if (sub) sub.classList.remove('skeleton-text');
+  document.querySelectorAll('.dyn').forEach(function(el) { el.classList.add('ready'); });
+}
+
+function applySettings(s) {
+  function set(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+  function setHref(id, href) {
+    var el = document.getElementById(id);
+    if (el) el.setAttribute('href', href);
+  }
+
+  var businessName = s['business_name'] || s['biz_name'] || null;
+  var tagline = s['tagline'] || s['biz_tagline'] || null;
+  if (businessName) { set('navBrandName', businessName); set('footerBrandName', businessName); document.title = businessName + ' — Sydney NSW'; }
+  if (tagline) { set('navBrandTag', tagline); set('footerBrandTag', tagline); }
+
+  if (s.phone) {
+    var ph = s.phone;
+    var phHref = 'tel:+61' + ph.replace(/\D/g,'').replace(/^0/,'');
+    set('navPhoneText', ph); setHref('navPhone', phHref);
+    set('drawerPhoneText', ph); setHref('drawerPhone', phHref);
+    var cPh = document.getElementById('contactPhone'); if (cPh) { cPh.textContent = ph; cPh.setAttribute('href', phHref); }
+    var fPh = document.getElementById('footerPhone'); if (fPh) { fPh.textContent = ph; fPh.setAttribute('href', phHref); }
+    var fmPh = document.getElementById('formPhone'); if (fmPh) { fmPh.textContent = ph; fmPh.setAttribute('href', phHref); }
+  }
+
+  if (s.whatsapp) {
+    var fab = document.querySelector('.whatsapp-fab');
+    if (fab) fab.setAttribute('href', 'https://wa.me/' + s.whatsapp + '?text=Hi%20Haq%20Driving%2C%20I%27d%20like%20to%20book%20a%20driving%20lesson.');
+  }
+
+  if (s.email) {
+    var emailHref = 'mailto:' + s.email;
+    var cE = document.getElementById('contactEmail'); if (cE) { cE.textContent = s.email; cE.setAttribute('href', emailHref); }
+    var fE = document.getElementById('footerEmail'); if (fE) { fE.textContent = s.email; fE.setAttribute('href', emailHref); }
+  }
+
+  if (s.address) { set('contactAddress', s.address); set('footerAddress', s.address); }
+
+  var hoursRaw = s['business_hours'] || s['hours'];
+  var hoursEl = document.getElementById('contact-hours');
+  if (hoursRaw && hoursEl) {
+    try {
+      var hours = typeof hoursRaw === 'string' ? JSON.parse(hoursRaw) : hoursRaw;
+      var dayKeys = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+      var dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      var hoursHTML = '';
+      if (Array.isArray(hours)) {
+        hoursHTML = hours.map(function(h) {
+          return '<div class="hours-row"><span class="hours-day">' + h.day + '</span><span class="hours-time">' + (h.closed ? 'Closed' : h.open + ' – ' + h.close) + '</span></div>';
+        }).join('');
+      } else {
+        hoursHTML = dayKeys.map(function(day, i) {
+          var d = hours[day]; if (!d) return '';
+          return '<div class="hours-row"><span class="hours-day">' + dayNames[i] + '</span><span class="hours-time">' + (d.closed ? 'Closed' : d.open + ' – ' + d.close) + '</span></div>';
+        }).join('');
+      }
+      if (hoursHTML) hoursEl.innerHTML = hoursHTML;
+    } catch(e) { hoursEl.innerHTML = '<p>Mon–Sun: 6:00am – 8:00pm</p>'; }
+  }
+
+  if (s.hero_headline) {
+    var h1el = document.getElementById('heroH1');
+    if (h1el) {
+      var parts = s.hero_headline.split(/(\[[^\]]*\])/);
+      h1el.innerHTML = parts.map(function(p) {
+        return (p.startsWith('[') && p.endsWith(']')) ? '<span class="accent">' + p.slice(1,-1) + '</span>' : p;
+      }).join('');
+    }
+  }
+  if (s.hero_subtext) { set('heroSub', s.hero_subtext); }
+
+  if (s.hero_photo_url) {
+    var hPhoto = document.getElementById('heroPhoto');
+    if (hPhoto) { hPhoto.style.backgroundImage = 'url(' + s.hero_photo_url + ')'; hPhoto.style.backgroundSize = 'cover'; hPhoto.style.backgroundPosition = 'center'; }
+    var lbl = document.getElementById('heroPhotoLabel'); if (lbl) lbl.style.display = 'none';
+  }
+
+  if (s.stats && Array.isArray(s.stats)) {
+    s.stats.forEach(function(st, i) {
+      var numEl = document.getElementById('stat-' + i); if (numEl) numEl.textContent = st.value;
+      var lblEl = document.getElementById('stat-lbl-' + i); if (lblEl) lblEl.textContent = st.label;
+    });
+  }
+
+  if (s.areas && Array.isArray(s.areas)) {
+    var areaGrid = document.getElementById('areaGrid');
+    if (areaGrid) {
+      var pinSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+      areaGrid.innerHTML = s.areas.map(function(a) { return '<span class="area-pill">' + pinSvg + a + '</span>'; }).join('');
+    }
+  }
+
+  if (s.faqs && Array.isArray(s.faqs)) {
+    var faqList = document.getElementById('faqList');
+    if (faqList) {
+      faqList.innerHTML = s.faqs.map(function(f) {
+        return '<div class="faq-item"><button class="faq-q">' + f.q + '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a"><div class="faq-a-inner">' + f.a + '</div></div></div>';
+      }).join('');
+      faqList.querySelectorAll('.faq-item').forEach(function(item) {
+        var q = item.querySelector('.faq-q');
+        var a = item.querySelector('.faq-a');
+        q.addEventListener('click', function() {
+          var isOpen = item.classList.contains('open');
+          faqList.querySelectorAll('.faq-item.open').forEach(function(other) { if (other !== item) { other.classList.remove('open'); other.querySelector('.faq-a').style.maxHeight = null; } });
+          if (isOpen) { item.classList.remove('open'); a.style.maxHeight = null; }
+          else { item.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; }
+        });
+      });
+    }
+  }
+
+  if (s.packages && Array.isArray(s.packages)) {
+    var pkgScroller = document.getElementById('scroller-packages');
+    if (pkgScroller) {
+      var tickSvg = '<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
+      pkgScroller.innerHTML = s.packages.map(function(p) {
+        return '<article class="pkg-card' + (p.popular ? ' popular' : '') + '">'
+          + (p.popular ? '<span class="pkg-flag">Most Popular</span>' : '')
+          + '<h3>' + p.name + '</h3>'
+          + '<div class="pkg-price"><span class="amt">' + p.price + '</span><span class="per">' + p.duration + '</span></div>'
+          + '<ul class="pkg-feats">' + (p.feats||[]).map(function(f){ return '<li>' + tickSvg + f + '</li>'; }).join('') + '</ul>'
+          + '<a href="#contact" class="btn ' + (p.popular ? 'btn--primary' : 'btn--outline') + ' btn--block pkg-btn">' + (p.button||'Book Now') + '</a>'
+          + '</article>';
+      }).join('');
+    }
+  }
+
+  function applySocial(id, urlKey, showKey) {
+    var el = document.getElementById(id); if (!el) return;
+    var url = s[urlKey]; var show = s[showKey];
+    var visible = (show === true || show === 'true');
+    if (url) el.setAttribute('href', url);
+    el.style.display = visible ? 'grid' : 'none';
+  }
+  applySocial('socialFb', 'facebook_url', 'facebook_show');
+  applySocial('socialIg', 'instagram_url', 'instagram_show');
+  applySocial('socialTt', 'tiktok_url', 'tiktok_show');
+  applySocial('socialYt', 'youtube_url', 'youtube_show');
+
+  var mapsUrl = s['maps_embed_url'];
+  var mapsIframe = document.getElementById('maps-iframe');
+  var mapPlaceholder = document.getElementById('mapPlaceholder');
+  if (mapsIframe && mapsUrl) { mapsIframe.src = mapsUrl; mapsIframe.style.display = 'block'; if (mapPlaceholder) mapPlaceholder.style.display = 'none'; }
+}
+
+// Apply cache immediately — before DOM is fully parsed
+(function() {
+  try {
+    var cached = localStorage.getItem(HAQ_CACHE_KEY);
+    var cachedTime = parseInt(localStorage.getItem(HAQ_CACHE_TIME) || '0');
+    if (cached && Date.now() - cachedTime < HAQ_CACHE_TTL) {
+      document.addEventListener('DOMContentLoaded', function() {
+        applySettings(JSON.parse(cached));
+        markLoaded();
+      });
+    }
+  } catch(e) {}
+})();
+</script>
 </head>
 <body>
 
@@ -419,7 +592,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
     <div class="nav-right">
       <a href="tel:+61450000000" class="nav-phone" id="navPhone">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        <span id="navPhoneText" class="dynamic-content"></span>
+        <span id="navPhoneText" class="dyn"></span>
       </a>
       <a href="#contact" class="btn btn--primary">Book a Lesson</a>
       <button class="hamburger" id="openDrawer" aria-label="Open menu">
@@ -451,7 +624,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
     <a href="#contact">Contact</a>
   </nav>
   <div class="drawer-cta">
-    <a href="tel:+61450000000" class="btn btn--ghost btn--block" id="drawerPhone">Call <span id="drawerPhoneText" class="dynamic-content"></span></a>
+    <a href="tel:+61450000000" class="btn btn--ghost btn--block" id="drawerPhone">Call <span id="drawerPhoneText" class="dyn"></span></a>
     <a href="#contact" class="btn btn--primary btn--block">Book a Lesson</a>
   </div>
 </aside>
@@ -868,19 +1041,19 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
       <div class="contact-list">
         <div class="contact-row">
           <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-          <div><div class="cl">Phone</div><a href="#" class="cv dynamic-content" id="contactPhone"></a></div>
+          <div><div class="cl">Phone</div><a href="#" class="cv dyn" id="contactPhone"></a></div>
         </div>
         <div class="contact-row">
           <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>
-          <div><div class="cl">Email</div><a href="#" class="cv dynamic-content" id="contactEmail"></a></div>
+          <div><div class="cl">Email</div><a href="#" class="cv dyn" id="contactEmail"></a></div>
         </div>
         <div class="contact-row">
           <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
-          <div><div class="cl">Location</div><div class="cv dynamic-content" id="contactAddress"></div></div>
+          <div><div class="cl">Location</div><div class="cv dyn" id="contactAddress"></div></div>
         </div>
         <div class="contact-row">
           <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></span>
-          <div><div class="cl">Hours</div><div class="cv dynamic-content" id="contact-hours"></div></div>
+          <div><div class="cl">Hours</div><div class="cv dyn" id="contact-hours"></div></div>
         </div>
       </div>
     </div>
@@ -923,7 +1096,7 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
           <span class="btn-text">Send Enquiry</span>
           <span class="spinner"></span>
         </button>
-        <p class="form-foot">Or call us on <a href="#" class="dynamic-content" id="formPhone"></a></p>
+        <p class="form-foot">Or call us on <a href="#" class="dyn" id="formPhone"></a></p>
         <p class="form-error" id="formError" style="display:none;color:#DC2626;font-size:13px;text-align:center;margin-top:10px">Something went wrong. Please try again or call us directly.</p>
       </form>
       <div class="form-success" id="formSuccess">
@@ -975,9 +1148,9 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
       <div class="footer-col">
         <h4>Contact</h4>
         <ul>
-          <li><a href="#" class="dynamic-content" id="footerPhone"></a></li>
-          <li><a href="#" class="dynamic-content" id="footerEmail"></a></li>
-          <li class="dynamic-content" id="footerAddress"></li>
+          <li><a href="#" class="dyn" id="footerPhone"></a></li>
+          <li><a href="#" class="dyn" id="footerEmail"></a></li>
+          <li class="dyn" id="footerAddress"></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -1132,21 +1305,8 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 
     await loadPhotos();
 
-    // ── Settings: cache-first then background refresh ────────────
-    var CACHE_KEY = 'haq_settings';
-    var CACHE_TIME_KEY = 'haq_settings_time';
-    var TTL = 30000;
-
-    function markLoaded() {
-      var h1 = document.getElementById('heroH1');
-      var sub = document.getElementById('heroSub');
-      if (h1) h1.classList.remove('skeleton-text');
-      if (sub) sub.classList.remove('skeleton-text');
-      document.querySelectorAll('.dynamic-content').forEach(function(el) { el.classList.add('loaded'); });
-    }
-
-    function fetchSettingsFromSupabase(cb) {
-      if (!window.SB_URL || !window.SB_ANON) return;
+    // ── Settings: fetch fresh from Supabase + update cache ───────
+    if (window.SB_URL && window.SB_ANON) {
       fetch(window.SB_URL + '/rest/v1/settings?select=key,value', {
         headers: { 'apikey': window.SB_ANON, 'Authorization': 'Bearer ' + window.SB_ANON }
       }).then(function(r) { return r.json(); }).then(function(data) {
@@ -1154,259 +1314,11 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
         (Array.isArray(data) ? data : []).forEach(function(row) {
           try { obj[row.key] = JSON.parse(row.value); } catch(e) { obj[row.key] = row.value; }
         });
-        localStorage.setItem(CACHE_KEY, JSON.stringify(obj));
-        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-        if (cb) cb(obj);
-      }).catch(function(e) { console.warn('Settings fetch error:', e); });
-    }
-
-    if (window.SB_URL && window.SB_ANON) {
-      var cachedRaw = localStorage.getItem(CACHE_KEY);
-      var cachedTime = parseInt(localStorage.getItem(CACHE_TIME_KEY) || '0');
-      var cacheValid = cachedRaw && (Date.now() - cachedTime < TTL);
-      if (cacheValid) {
-        try {
-          var cachedSettings = JSON.parse(cachedRaw);
-          applySettings(cachedSettings);
-          markLoaded();
-          // Background refresh if cache is stale (>5s old)
-          if (Date.now() - cachedTime > 5000) {
-            fetchSettingsFromSupabase(function(fresh) { applySettings(fresh); markLoaded(); });
-          }
-        } catch(e) {
-          console.warn('Settings cache parse error:', e);
-          fetchSettingsFromSupabase(function(obj) { applySettings(obj); markLoaded(); });
-        }
-      } else {
-        fetchSettingsFromSupabase(function(obj) { applySettings(obj); markLoaded(); });
-      }
-    }
-
-    function applySettings(s) {
-      function set(id, text) {
-        var el = document.getElementById(id);
-        if (el) { console.log('Applying setting:', id, text); el.textContent = text; }
-      }
-      function setHref(id, href) {
-        var el = document.getElementById(id);
-        if (el) el.setAttribute('href', href);
-      }
-
-      // Business name & tagline
-      var businessName = s['business_name'] || s['biz_name'] || null;
-      var tagline = s['tagline'] || s['biz_tagline'] || null;
-      if (businessName) {
-        set('navBrandName', businessName);
-        set('footerBrandName', businessName);
-        document.title = businessName + ' — Sydney NSW';
-        console.log('Applying setting: business_name', businessName);
-      }
-      if (tagline) {
-        set('navBrandTag', tagline);
-        set('footerBrandTag', tagline);
-        console.log('Applying setting: tagline', tagline);
-      }
-
-      // Phone
-      if (s.phone) {
-        var ph = s.phone;
-        var phHref = 'tel:+61' + ph.replace(/\D/g,'').replace(/^0/,'');
-        set('navPhoneText', ph);
-        setHref('navPhone', phHref);
-        set('drawerPhoneText', ph);
-        setHref('drawerPhone', phHref);
-        var contactPhoneEl = document.getElementById('contactPhone');
-        if (contactPhoneEl) { contactPhoneEl.textContent = ph; contactPhoneEl.setAttribute('href', phHref); }
-        var footerPhoneEl = document.getElementById('footerPhone');
-        if (footerPhoneEl) { footerPhoneEl.textContent = ph; footerPhoneEl.setAttribute('href', phHref); }
-        var formPhoneEl = document.getElementById('formPhone');
-        if (formPhoneEl) { formPhoneEl.textContent = ph; formPhoneEl.setAttribute('href', phHref); }
-        console.log('Applying setting: phone', ph);
-      }
-
-      // WhatsApp
-      if (s.whatsapp) {
-        var fab = document.querySelector('.whatsapp-fab');
-        if (fab) fab.setAttribute('href', 'https://wa.me/' + s.whatsapp + '?text=Hi%20Haq%20Driving%2C%20I%27d%20like%20to%20book%20a%20driving%20lesson.');
-        console.log('Applying setting: whatsapp', s.whatsapp);
-      }
-
-      // Email
-      if (s.email) {
-        var emailHref = 'mailto:' + s.email;
-        var cEmail = document.getElementById('contactEmail');
-        if (cEmail) { cEmail.textContent = s.email; cEmail.setAttribute('href', emailHref); }
-        var fEmail = document.getElementById('footerEmail');
-        if (fEmail) { fEmail.textContent = s.email; fEmail.setAttribute('href', emailHref); }
-        console.log('Applying setting: email', s.email);
-      }
-
-      // Address
-      if (s.address) {
-        set('contactAddress', s.address);
-        set('footerAddress', s.address);
-      }
-
-      // Hours
-      var hoursRaw = s['business_hours'] || s['hours'];
-      var hoursEl = document.getElementById('contact-hours');
-      if (hoursRaw && hoursEl) {
-        try {
-          var hours = typeof hoursRaw === 'string' ? JSON.parse(hoursRaw) : hoursRaw;
-          var dayKeys = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-          var dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-          var hoursHTML = '';
-
-          if (Array.isArray(hours)) {
-            // Admin array format: [{day:'Monday',open:'06:00',close:'20:00',closed:false},...]
-            hoursHTML = hours.map(function(h) {
-              return '<div class="hours-row">'
-                + '<span class="hours-day">' + h.day + '</span>'
-                + '<span class="hours-time">' + (h.closed ? 'Closed' : h.open + ' – ' + h.close) + '</span>'
-                + '</div>';
-            }).join('');
-          } else {
-            // Object format: {monday:{open:'6:00am',close:'8:00pm',closed:false},...}
-            hoursHTML = dayKeys.map(function(day, i) {
-              var d = hours[day];
-              if (!d) return '';
-              return '<div class="hours-row">'
-                + '<span class="hours-day">' + dayNames[i] + '</span>'
-                + '<span class="hours-time">' + (d.closed ? 'Closed' : d.open + ' – ' + d.close) + '</span>'
-                + '</div>';
-            }).join('');
-          }
-
-          if (hoursHTML) { hoursEl.innerHTML = hoursHTML; }
-          console.log('Hours applied:', hours);
-        } catch(e) {
-          console.error('Hours parse error:', e);
-          hoursEl.innerHTML = '<p>Mon–Sun: 6:00am – 8:00pm</p>';
-        }
-      }
-
-      // Hero headline with [word] → blue parser
-      if (s.hero_headline) {
-        var h1 = document.getElementById('heroH1');
-        if (h1) {
-          var parts = s.hero_headline.split(/(\[[^\]]*\])/);
-          h1.innerHTML = parts.map(function(p) {
-            if (p.startsWith('[') && p.endsWith(']')) {
-              return '<span class="accent">' + p.slice(1,-1) + '</span>';
-            }
-            return p;
-          }).join('');
-          console.log('Applying setting: hero_headline', s.hero_headline);
-        }
-      }
-
-      // Hero subtext
-      if (s.hero_subtext) { set('heroSub', s.hero_subtext); }
-
-      // Hero photo
-      if (s.hero_photo_url) {
-        var hPhoto = document.getElementById('heroPhoto');
-        if (hPhoto) {
-          hPhoto.style.backgroundImage = 'url(' + s.hero_photo_url + ')';
-          hPhoto.style.backgroundSize = 'cover';
-          hPhoto.style.backgroundPosition = 'center';
-          var lbl = document.getElementById('heroPhotoLabel');
-          if (lbl) lbl.style.display = 'none';
-          console.log('Applying setting: hero_photo_url', s.hero_photo_url);
-        }
-      }
-
-      // Stats bar
-      if (s.stats && Array.isArray(s.stats)) {
-        s.stats.forEach(function(st, i) {
-          var numEl = document.getElementById('stat-' + i);
-          var lblEl = document.getElementById('stat-lbl-' + i);
-          if (numEl) { numEl.textContent = st.value; console.log('Applying setting: stat-' + i, st.value); }
-          if (lblEl) { lblEl.textContent = st.label; }
-        });
-      }
-
-      // Service areas
-      if (s.areas && Array.isArray(s.areas)) {
-        var areaGrid = document.getElementById('areaGrid');
-        if (areaGrid) {
-          var pinSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
-          areaGrid.innerHTML = s.areas.map(function(a) {
-            return '<span class="area-pill">' + pinSvg + a + '</span>';
-          }).join('');
-          console.log('Applying setting: areas', s.areas);
-        }
-      }
-
-      // FAQ items
-      if (s.faqs && Array.isArray(s.faqs)) {
-        var faqList = document.getElementById('faqList');
-        if (faqList) {
-          faqList.innerHTML = s.faqs.map(function(f) {
-            return '<div class="faq-item"><button class="faq-q">' + f.q + '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a"><div class="faq-a-inner">' + f.a + '</div></div></div>';
-          }).join('');
-          // re-bind accordion
-          faqList.querySelectorAll('.faq-item').forEach(function(item) {
-            var q = item.querySelector('.faq-q');
-            var a = item.querySelector('.faq-a');
-            q.addEventListener('click', function() {
-              var isOpen = item.classList.contains('open');
-              faqList.querySelectorAll('.faq-item.open').forEach(function(other) {
-                if (other !== item) { other.classList.remove('open'); other.querySelector('.faq-a').style.maxHeight = null; }
-              });
-              if (isOpen) { item.classList.remove('open'); a.style.maxHeight = null; }
-              else { item.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; }
-            });
-          });
-          console.log('Applying setting: faqs', s.faqs.length + ' items');
-        }
-      }
-
-      // Lesson packages
-      if (s.packages && Array.isArray(s.packages)) {
-        var pkgScroller = document.getElementById('scroller-packages');
-        if (pkgScroller) {
-          var tickSvg = '<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
-          pkgScroller.innerHTML = s.packages.map(function(p) {
-            return '<article class="pkg-card' + (p.popular ? ' popular' : '') + '">'
-              + (p.popular ? '<span class="pkg-flag">Most Popular</span>' : '')
-              + '<h3>' + p.name + '</h3>'
-              + '<div class="pkg-price"><span class="amt">' + p.price + '</span><span class="per">' + p.duration + '</span></div>'
-              + '<ul class="pkg-feats">' + (p.feats||[]).map(function(f){ return '<li>' + tickSvg + f + '</li>'; }).join('') + '</ul>'
-              + '<a href="#contact" class="btn ' + (p.popular ? 'btn--primary' : 'btn--outline') + ' btn--block pkg-btn">' + (p.button||'Book Now') + '</a>'
-              + '</article>';
-          }).join('');
-          console.log('Applying setting: packages', s.packages.length + ' items');
-        }
-      }
-
-      // Social media links
-      function applySocial(id, urlKey, showKey) {
-        var el = document.getElementById(id);
-        if (!el) return;
-        var url = s[urlKey];
-        var show = s[showKey];
-        // show key stored as boolean or string
-        var visible = (show === true || show === 'true');
-        if (url) { el.setAttribute('href', url); }
-        el.style.display = visible ? 'grid' : 'none';
-        console.log('Applying setting:', urlKey, url, 'show:', visible);
-      }
-      applySocial('socialFb', 'facebook_url', 'facebook_show');
-      applySocial('socialIg', 'instagram_url', 'instagram_show');
-      applySocial('socialTt', 'tiktok_url', 'tiktok_show');
-      applySocial('socialYt', 'youtube_url', 'youtube_show');
-
-      // Google Maps embed
-      var mapsUrl = s['maps_embed_url'];
-      var mapsIframe = document.getElementById('maps-iframe');
-      var mapPlaceholder = document.getElementById('mapPlaceholder');
-      if (mapsIframe && mapsUrl) {
-        mapsIframe.src = mapsUrl;
-        mapsIframe.style.display = 'block';
-        if (mapPlaceholder) mapPlaceholder.style.display = 'none';
-        console.log('Applying setting: maps_embed_url');
-      }
+        localStorage.setItem(HAQ_CACHE_KEY, JSON.stringify(obj));
+        localStorage.setItem(HAQ_CACHE_TIME, Date.now().toString());
+        applySettings(obj);
+        markLoaded();
+      }).catch(function(e) { console.warn('Settings fetch error:', e); markLoaded(); });
     }
 
     var form = document.getElementById('enquiryForm');

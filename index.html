@@ -93,21 +93,37 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 .drawer-links a:hover{background:var(--bg-grey)}
 .drawer-cta{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding-top:20px}
 
+/* Hero animations */
+@keyframes heroGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blobFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-20px) scale(1.05)}66%{transform:translate(-10px,10px) scale(0.95)}}
+@keyframes scrollBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+
 /* Hero */
-.hero{padding:64px 0 80px}
-.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
-.hero h1{font-size:clamp(38px,5vw,58px);line-height:1.05;margin-bottom:20px}
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;background:linear-gradient(135deg,#F0F4FF 0%,#EFF6FF 25%,#F8FAFC 50%,#EFF6FF 75%,#F0F4FF 100%);background-size:400% 400%;animation:heroGradient 8s ease infinite}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;width:100%;padding-top:80px;padding-bottom:100px}
+.hero h1{font-size:clamp(38px,5vw,58px);line-height:1.05;margin-bottom:20px;animation:fadeInUp 0.7s ease forwards}
 .hero h1 .accent{color:var(--blue);display:block}
-.hero-sub{font-size:18px;color:var(--body);max-width:480px;margin-bottom:28px}
-.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px}
-.trust-row{display:flex;gap:22px;flex-wrap:wrap}
+.hero-sub{font-size:18px;color:var(--body);max-width:480px;margin-bottom:28px;opacity:0;animation:fadeInUp 0.7s ease 0.2s forwards}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px;opacity:0;animation:fadeInUp 0.7s ease 0.4s forwards}
+.trust-row{display:flex;gap:22px;flex-wrap:wrap;opacity:0;animation:fadeInUp 0.7s ease 0.6s forwards}
 .trust-item{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:500;color:#3B4759}
 .trust-item .tick{width:19px;height:19px;border-radius:50%;background:#E4F3EA;color:var(--green);display:grid;place-items:center;flex:none}
 .trust-item .tick svg{width:12px;height:12px}
 .hero-media{position:relative}
+.hero-image-wrap{animation:float 4s ease-in-out infinite}
 .hero-photo{border-radius:20px;overflow:hidden;aspect-ratio:4/3.2;box-shadow:var(--shadow-md);border:1px solid var(--line);background:var(--bg-grey);display:grid;place-items:center}
 .hero-photo img{width:100%;height:100%;object-fit:cover}
 .hero-photo .ph-label{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;background:rgba(255,255,255,.82);padding:5px 11px;border-radius:6px;color:#7D8CA3}
+/* Blobs */
+.hero-blob{position:absolute;border-radius:50%;background:rgba(37,99,235,0.06);pointer-events:none;animation:blobFloat 10s ease-in-out infinite}
+.hero-blob-1{width:400px;height:400px;top:-100px;right:-100px;animation-delay:0s}
+.hero-blob-2{width:300px;height:300px;bottom:-50px;left:-50px;animation-delay:3s}
+.hero-blob-3{width:200px;height:200px;top:40%;right:30%;animation-delay:6s}
+/* Scroll indicator */
+.scroll-indicator{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:#94A3B8;font-size:12px;animation:scrollBounce 2s ease infinite;cursor:pointer;white-space:nowrap}
+.scroll-arrow{width:20px;height:20px;border-right:2px solid #94A3B8;border-bottom:2px solid #94A3B8;transform:rotate(45deg)}
 .social-proof{position:absolute;left:18px;bottom:-26px;background:#fff;border-radius:14px;box-shadow:var(--shadow-lift);padding:13px 18px;display:flex;align-items:center;gap:13px;border:1px solid var(--line)}
 .avatar-stack{display:flex}
 .avatar-stack span{width:32px;height:32px;border-radius:50%;border:2.5px solid #fff;margin-left:-10px;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
@@ -313,8 +329,9 @@ h1,h2,h3,h4{color:var(--ink);line-height:1.15;letter-spacing:-0.02em;font-weight
 }
 @media(max-width:820px){
   .section{padding:56px 0}
-  .hero{padding:40px 0 56px}
-  .hero-grid{grid-template-columns:1fr;gap:48px}
+  .hero{min-height:100svh}
+  .hero-grid{grid-template-columns:1fr;gap:48px;padding-top:100px;padding-bottom:80px}
+  .scroll-indicator{display:none}
   .stats-grid{grid-template-columns:repeat(2,1fr);gap:32px 20px}
   .contact-grid{grid-template-columns:1fr;gap:32px}
   .area-grid{grid-template-columns:repeat(3,1fr)}
@@ -660,6 +677,11 @@ function applySettings(s) {
 
 <!-- HERO -->
 <section class="hero">
+  <!-- Background blobs -->
+  <div class="hero-blob hero-blob-1"></div>
+  <div class="hero-blob hero-blob-2"></div>
+  <div class="hero-blob hero-blob-3"></div>
+
   <div class="wrap hero-grid">
     <div class="hero-text">
       <span class="eyebrow">
@@ -682,6 +704,7 @@ function applySettings(s) {
       </div>
     </div>
     <div class="hero-media">
+      <div class="hero-image-wrap">
       <div class="hero-photo" id="heroPhoto">
         <span class="ph-label" id="heroPhotoLabel">instructor + student in car</span>
       </div>
@@ -703,7 +726,14 @@ function applySettings(s) {
           <strong>400+ students passed</strong>
         </div>
       </div>
+      </div><!-- /.hero-image-wrap -->
     </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator" onclick="window.scrollBy({top:window.innerHeight,behavior:'smooth'})">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
   </div>
 </section>
 
